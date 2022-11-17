@@ -216,7 +216,7 @@ namespace Microsoft.Azure.Functions.Worker
                     };
 
                     // add BindingInfo
-                    rpcFuncMetadata.Bindings.Add(func.GetBindingInfoList());
+                    // rpcFuncMetadata.Bindings.Add(func.GetBindingInfoList());
 
                     response.FunctionMetadataResults.Add(rpcFuncMetadata);
                 }
