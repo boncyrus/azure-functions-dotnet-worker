@@ -86,25 +86,24 @@ namespace Microsoft.Azure.Functions.Worker
             var metadataList = new List<IFunctionMetadata>();
             var Function0RawBindings = new List<string>();
             var Function0binding0 = new {
-                name = '$return',
-                type = 'Queue',
-                direction = 'Out',
-                queueName = 'test-output-dotnet-isolated',
+                Name = '$return',
+                Type = 'Queue',
+                Direction = 'Out',
+                QueueName = 'test-output-dotnet-isolated',
             };
             var Function0binding0JSON = JsonSerializer.Serialize(Function0binding0);
             Function0RawBindings.Add(Function0binding0JSON);
             var Function0binding1 = new {
-                name = 'message',
-                type = 'QueueTrigger',
-                direction = 'In',
-                queueName = 'test-input-dotnet-isolated',
-                dataType = 'String',
+                Name = 'message',
+                Type = 'QueueTrigger',
+                Direction = 'In',
+                QueueName = 'test-input-dotnet-isolated',
+                DataType = 'String',
             };
             var Function0binding1JSON = JsonSerializer.Serialize(Function0binding1);
             Function0RawBindings.Add(Function0binding1JSON);
             var Function0 = new DefaultFunctionMetadata
             {
-                FunctionId = Guid.NewGuid().ToString(),
                 Language = 'dotnet-isolated',
                 Name = 'QueueTriggerFunction',
                 EntryPoint = 'TestProject.QueueTriggerAndOutput.QueueTriggerAndOutputFunction',
@@ -119,7 +118,7 @@ namespace Microsoft.Azure.Functions.Worker
     {
         ///<summary>
         /// Adds the GeneratedFunctionMetadataProvider to the service collection.
-        /// During initialization, the worker will return generated funciton metadata instead of relying on the Azure Functions host for function indexing.
+        /// During initialization, the worker will return generated function metadata instead of relying on the Azure Functions host for function indexing.
         ///</summary>
         public static IHostBuilder ConfigureGeneratedFunctionMetadataProvider(this IHostBuilder builder)
         {
@@ -195,27 +194,26 @@ namespace Microsoft.Azure.Functions.Worker
             var metadataList = new List<IFunctionMetadata>();
             var Function0RawBindings = new List<string>();
             var Function0binding0 = new {
-                name = '$return',
-                type = 'Blob',
-                direction = 'Out',
-                blobPath = 'container1/hello.txt',
+                Name = '$return',
+                Type = 'Blob',
+                Direction = 'Out',
+                BlobPath = 'container1/hello.txt',
                 Connection = 'MyOtherConnection',
             };
             var Function0binding0JSON = JsonSerializer.Serialize(Function0binding0);
             Function0RawBindings.Add(Function0binding0JSON);
             var Function0binding1 = new {
-                name = 'queuePayload',
-                type = 'QueueTrigger',
-                direction = 'In',
-                queueName = 'queueName',
+                Name = 'queuePayload',
+                Type = 'QueueTrigger',
+                Direction = 'In',
+                QueueName = 'queueName',
                 Connection = 'MyConnection',
-                dataType = 'String',
+                DataType = 'String',
             };
             var Function0binding1JSON = JsonSerializer.Serialize(Function0binding1);
             Function0RawBindings.Add(Function0binding1JSON);
             var Function0 = new DefaultFunctionMetadata
             {
-                FunctionId = Guid.NewGuid().ToString(),
                 Language = 'dotnet-isolated',
                 Name = 'QueueToBlobFunction',
                 EntryPoint = 'TestProject.QueueTriggerAndOutput.QueueToBlob',
@@ -225,25 +223,24 @@ namespace Microsoft.Azure.Functions.Worker
             metadataList.Add(Function0);
             var Function1RawBindings = new List<string>();
             var Function1binding0 = new {
-                name = '$return',
-                type = 'Queue',
-                direction = 'Out',
-                queueName = 'queue2',
+                Name = '$return',
+                Type = 'Queue',
+                Direction = 'Out',
+                QueueName = 'queue2',
             };
             var Function1binding0JSON = JsonSerializer.Serialize(Function1binding0);
             Function1RawBindings.Add(Function1binding0JSON);
             var Function1binding1 = new {
-                name = 'blob',
-                type = 'BlobTrigger',
-                direction = 'In',
-                blobPath = 'container2/%file%',
-                dataType = 'String',
+                Name = 'blob',
+                Type = 'BlobTrigger',
+                Direction = 'In',
+                Path = 'container2/%file%',
+                DataType = 'String',
             };
             var Function1binding1JSON = JsonSerializer.Serialize(Function1binding1);
             Function1RawBindings.Add(Function1binding1JSON);
             var Function1 = new DefaultFunctionMetadata
             {
-                FunctionId = Guid.NewGuid().ToString(),
                 Language = 'dotnet-isolated',
                 Name = 'BlobToQueueFunction',
                 EntryPoint = 'TestProject.QueueTriggerAndOutput.BlobToQueue',
@@ -258,7 +255,7 @@ namespace Microsoft.Azure.Functions.Worker
     {
         ///<summary>
         /// Adds the GeneratedFunctionMetadataProvider to the service collection.
-        /// During initialization, the worker will return generated funciton metadata instead of relying on the Azure Functions host for function indexing.
+        /// During initialization, the worker will return generated function metadata instead of relying on the Azure Functions host for function indexing.
         ///</summary>
         public static IHostBuilder ConfigureGeneratedFunctionMetadataProvider(this IHostBuilder builder)
         {

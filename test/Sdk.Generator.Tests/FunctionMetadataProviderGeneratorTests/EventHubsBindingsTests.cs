@@ -97,17 +97,17 @@ namespace Microsoft.Azure.Functions.Worker
             var metadataList = new List<IFunctionMetadata>();
             var Function0RawBindings = new List<string>();
             var Function0binding0 = new {
-                name = ""input"",
-                type = ""EventHubTrigger"",
-                direction = ""In"",
-                eventHubName = ""test"",
+                Name = ""input"",
+                Type = ""EventHubTrigger"",
+                Direction = ""In"",
+                EventHubName = ""test"",
                 Connection = ""EventHubConnectionAppSetting"",
                 Cardinality = ""One"",");
              
                 if(!string.Equals(dataType, ""))
                 {
                     expectedOutputBuilder.Append(@"
-                dataType = """ + dataType + "\",");
+                DataType = """ + dataType + "\",");
                 }
 
                 expectedOutputBuilder.Append(@"
@@ -116,7 +116,6 @@ namespace Microsoft.Azure.Functions.Worker
             Function0RawBindings.Add(Function0binding0JSON);
             var Function0 = new DefaultFunctionMetadata
             {
-                FunctionId = Guid.NewGuid().ToString(),
                 Language = ""dotnet-isolated"",
                 Name = """ + functionName + @""",
                 EntryPoint = ""TestProject.EventHubsInput." + functionName + @""",
@@ -131,7 +130,7 @@ namespace Microsoft.Azure.Functions.Worker
     {
         ///<summary>
         /// Adds the GeneratedFunctionMetadataProvider to the service collection.
-        /// During initialization, the worker will return generated funciton metadata instead of relying on the Azure Functions host for function indexing.
+        /// During initialization, the worker will return generated function metadata instead of relying on the Azure Functions host for function indexing.
         ///</summary>
         public static IHostBuilder ConfigureGeneratedFunctionMetadataProvider(this IHostBuilder builder)
         {
@@ -227,27 +226,26 @@ namespace Microsoft.Azure.Functions.Worker
             var metadataList = new List<IFunctionMetadata>();
             var Function0RawBindings = new List<string>();
             var Function0binding0 = new {
-                name = ""input"",
-                type = ""EventHubTrigger"",
-                direction = ""In"",
-                eventHubName = ""test"",
-                Connection = ""EventHubConnectionAppSetting"","
+                Name = ""input"",
+                Type = ""EventHubTrigger"",
+                Direction = ""In"",
+                EventHubName = ""test"",
+                Connection = ""EventHubConnectionAppSetting"",
+                Cardinality = ""Many"","
                 );
 
                 if (!string.Equals(dataType, ""))
                 {
                     expectedOutputBuilder.Append(@"
-                dataType = """ + dataType + "\",");
+                DataType = """ + dataType + "\",");
                 }
 
                 expectedOutputBuilder.Append(@"
-                Cardinality = ""Many"",
             };
             var Function0binding0JSON = JsonSerializer.Serialize(Function0binding0);
             Function0RawBindings.Add(Function0binding0JSON);
             var Function0 = new DefaultFunctionMetadata
             {
-                FunctionId = Guid.NewGuid().ToString(),
                 Language = ""dotnet-isolated"",
                 Name = """ + functionName + @""",
                 EntryPoint = ""TestProject.EventHubsInput." + functionName + @""",
@@ -262,7 +260,7 @@ namespace Microsoft.Azure.Functions.Worker
     {
         ///<summary>
         /// Adds the GeneratedFunctionMetadataProvider to the service collection.
-        /// During initialization, the worker will return generated funciton metadata instead of relying on the Azure Functions host for function indexing.
+        /// During initialization, the worker will return generated function metadata instead of relying on the Azure Functions host for function indexing.
         ///</summary>
         public static IHostBuilder ConfigureGeneratedFunctionMetadataProvider(this IHostBuilder builder)
         {
@@ -329,10 +327,10 @@ namespace Microsoft.Azure.Functions.Worker
             var metadataList = new List<IFunctionMetadata>();
             var Function0RawBindings = new List<string>();
             var Function0binding0 = new {
-                name = 'input',
-                type = 'EventHubTrigger',
-                direction = 'In',
-                eventHubName = 'test',
+                Name = 'input',
+                Type = 'EventHubTrigger',
+                Direction = 'In',
+                EventHubName = 'test',
                 Connection = 'EventHubConnectionAppSetting',
                 Cardinality = 'Many',
             };
@@ -340,7 +338,6 @@ namespace Microsoft.Azure.Functions.Worker
             Function0RawBindings.Add(Function0binding0JSON);
             var Function0 = new DefaultFunctionMetadata
             {
-                FunctionId = Guid.NewGuid().ToString(),
                 Language = 'dotnet-isolated',
                 Name = 'EnumerableBinaryInputFunction',
                 EntryPoint = 'TestProject.EventHubsInput.EnumerableBinaryInputFunction',
@@ -355,7 +352,7 @@ namespace Microsoft.Azure.Functions.Worker
     {
         ///<summary>
         /// Adds the GeneratedFunctionMetadataProvider to the service collection.
-        /// During initialization, the worker will return generated funciton metadata instead of relying on the Azure Functions host for function indexing.
+        /// During initialization, the worker will return generated function metadata instead of relying on the Azure Functions host for function indexing.
         ///</summary>
         public static IHostBuilder ConfigureGeneratedFunctionMetadataProvider(this IHostBuilder builder)
         {
@@ -474,19 +471,18 @@ namespace Microsoft.Azure.Functions.Worker
             var metadataList = new List<IFunctionMetadata>();
             var Function0RawBindings = new List<string>();
             var Function0binding0 = new {
-                name = 'input',
-                type = 'EventHubTrigger',
-                direction = 'In',
-                eventHubName = 'test',
+                Name = 'input',
+                Type = 'EventHubTrigger',
+                Direction = 'In',
+                EventHubName = 'test',
                 Connection = 'EventHubConnectionAppSetting',
-                dataType = 'String',
                 Cardinality = 'Many',
+                DataType = 'String',
             };
             var Function0binding0JSON = JsonSerializer.Serialize(Function0binding0);
             Function0RawBindings.Add(Function0binding0JSON);
             var Function0 = new DefaultFunctionMetadata
             {
-                FunctionId = Guid.NewGuid().ToString(),
                 Language = 'dotnet-isolated',
                 Name = 'EnumerableStringClassInputFunction',
                 EntryPoint = 'TestProject.EventHubsInput.EnumerableStringClassInputFunction',
@@ -496,19 +492,18 @@ namespace Microsoft.Azure.Functions.Worker
             metadataList.Add(Function0);
             var Function1RawBindings = new List<string>();
             var Function1binding0 = new {
-                name = 'input',
-                type = 'EventHubTrigger',
-                direction = 'In',
-                eventHubName = 'test',
+                Name = 'input',
+                Type = 'EventHubTrigger',
+                Direction = 'In',
+                EventHubName = 'test',
                 Connection = 'EventHubConnectionAppSetting',
-                dataType = 'String',
                 Cardinality = 'Many',
+                DataType = 'String',
             };
             var Function1binding0JSON = JsonSerializer.Serialize(Function1binding0);
             Function1RawBindings.Add(Function1binding0JSON);
             var Function1 = new DefaultFunctionMetadata
             {
-                FunctionId = Guid.NewGuid().ToString(),
                 Language = 'dotnet-isolated',
                 Name = 'EnumerableNestedStringClassInputFunction',
                 EntryPoint = 'TestProject.EventHubsInput.EnumerableNestedStringClassInputFunction',
@@ -518,19 +513,18 @@ namespace Microsoft.Azure.Functions.Worker
             metadataList.Add(Function1);
             var Function2RawBindings = new List<string>();
             var Function2binding0 = new {
-                name = 'input',
-                type = 'EventHubTrigger',
-                direction = 'In',
-                eventHubName = 'test',
+                Name = 'input',
+                Type = 'EventHubTrigger',
+                Direction = 'In',
+                EventHubName = 'test',
                 Connection = 'EventHubConnectionAppSetting',
-                dataType = 'String',
                 Cardinality = 'Many',
+                DataType = 'String',
             };
             var Function2binding0JSON = JsonSerializer.Serialize(Function2binding0);
             Function2RawBindings.Add(Function2binding0JSON);
             var Function2 = new DefaultFunctionMetadata
             {
-                FunctionId = Guid.NewGuid().ToString(),
                 Language = 'dotnet-isolated',
                 Name = 'EnumerableNestedStringGenericClassInputFunction',
                 EntryPoint = 'TestProject.EventHubsInput.EnumerableNestedStringGenericClassInputFunction',
@@ -540,19 +534,18 @@ namespace Microsoft.Azure.Functions.Worker
             metadataList.Add(Function2);
             var Function3RawBindings = new List<string>();
             var Function3binding0 = new {
-                name = 'input',
-                type = 'EventHubTrigger',
-                direction = 'In',
-                eventHubName = 'test',
+                Name = 'input',
+                Type = 'EventHubTrigger',
+                Direction = 'In',
+                EventHubName = 'test',
                 Connection = 'EventHubConnectionAppSetting',
-                dataType = 'String',
                 Cardinality = 'Many',
+                DataType = 'String',
             };
             var Function3binding0JSON = JsonSerializer.Serialize(Function3binding0);
             Function3RawBindings.Add(Function3binding0JSON);
             var Function3 = new DefaultFunctionMetadata
             {
-                FunctionId = Guid.NewGuid().ToString(),
                 Language = 'dotnet-isolated',
                 Name = 'EnumerableNestedStringGenericClass2InputFunction',
                 EntryPoint = 'TestProject.EventHubsInput.EnumerableNestedStringGenericClass2InputFunction',
@@ -567,7 +560,7 @@ namespace Microsoft.Azure.Functions.Worker
     {
         ///<summary>
         /// Adds the GeneratedFunctionMetadataProvider to the service collection.
-        /// During initialization, the worker will return generated funciton metadata instead of relying on the Azure Functions host for function indexing.
+        /// During initialization, the worker will return generated function metadata instead of relying on the Azure Functions host for function indexing.
         ///</summary>
         public static IHostBuilder ConfigureGeneratedFunctionMetadataProvider(this IHostBuilder builder)
         {
@@ -659,19 +652,18 @@ namespace Microsoft.Azure.Functions.Worker
             var metadataList = new List<IFunctionMetadata>();
             var Function0RawBindings = new List<string>();
             var Function0binding0 = new {
-                name = 'input',
-                type = 'EventHubTrigger',
-                direction = 'In',
-                eventHubName = 'test',
+                Name = 'input',
+                Type = 'EventHubTrigger',
+                Direction = 'In',
+                EventHubName = 'test',
                 Connection = 'EventHubConnectionAppSetting',
-                dataType = 'Binary',
                 Cardinality = 'Many',
+                DataType = 'Binary',
             };
             var Function0binding0JSON = JsonSerializer.Serialize(Function0binding0);
             Function0RawBindings.Add(Function0binding0JSON);
             var Function0 = new DefaultFunctionMetadata
             {
-                FunctionId = Guid.NewGuid().ToString(),
                 Language = 'dotnet-isolated',
                 Name = 'EnumerableBinaryClassInputFunction',
                 EntryPoint = 'TestProject.EventHubsInput.EnumerableBinaryClassInputFunction',
@@ -681,19 +673,18 @@ namespace Microsoft.Azure.Functions.Worker
             metadataList.Add(Function0);
             var Function1RawBindings = new List<string>();
             var Function1binding0 = new {
-                name = 'input',
-                type = 'EventHubTrigger',
-                direction = 'In',
-                eventHubName = 'test',
+                Name = 'input',
+                Type = 'EventHubTrigger',
+                Direction = 'In',
+                EventHubName = 'test',
                 Connection = 'EventHubConnectionAppSetting',
-                dataType = 'Binary',
                 Cardinality = 'Many',
+                DataType = 'Binary',
             };
             var Function1binding0JSON = JsonSerializer.Serialize(Function1binding0);
             Function1RawBindings.Add(Function1binding0JSON);
             var Function1 = new DefaultFunctionMetadata
             {
-                FunctionId = Guid.NewGuid().ToString(),
                 Language = 'dotnet-isolated',
                 Name = 'EnumerableNestedBinaryClassInputFunction',
                 EntryPoint = 'TestProject.EventHubsInput.EnumerableNestedBinaryClassInputFunction',
@@ -708,7 +699,7 @@ namespace Microsoft.Azure.Functions.Worker
     {
         ///<summary>
         /// Adds the GeneratedFunctionMetadataProvider to the service collection.
-        /// During initialization, the worker will return generated funciton metadata instead of relying on the Azure Functions host for function indexing.
+        /// During initialization, the worker will return generated function metadata instead of relying on the Azure Functions host for function indexing.
         ///</summary>
         public static IHostBuilder ConfigureGeneratedFunctionMetadataProvider(this IHostBuilder builder)
         {
@@ -787,10 +778,10 @@ namespace Microsoft.Azure.Functions.Worker
             var metadataList = new List<IFunctionMetadata>();
             var Function0RawBindings = new List<string>();
             var Function0binding0 = new {
-                name = 'input',
-                type = 'EventHubTrigger',
-                direction = 'In',
-                eventHubName = 'test',
+                Name = 'input',
+                Type = 'EventHubTrigger',
+                Direction = 'In',
+                EventHubName = 'test',
                 Connection = 'EventHubConnectionAppSetting',
                 Cardinality = 'Many',
             };
@@ -798,7 +789,6 @@ namespace Microsoft.Azure.Functions.Worker
             Function0RawBindings.Add(Function0binding0JSON);
             var Function0 = new DefaultFunctionMetadata
             {
-                FunctionId = Guid.NewGuid().ToString(),
                 Language = 'dotnet-isolated',
                 Name = 'EnumerablePocoInputFunction',
                 EntryPoint = 'TestProject.EventHubsInput.EnumerablePocoInputFunction',
@@ -808,10 +798,10 @@ namespace Microsoft.Azure.Functions.Worker
             metadataList.Add(Function0);
             var Function1RawBindings = new List<string>();
             var Function1binding0 = new {
-                name = 'input',
-                type = 'EventHubTrigger',
-                direction = 'In',
-                eventHubName = 'test',
+                Name = 'input',
+                Type = 'EventHubTrigger',
+                Direction = 'In',
+                EventHubName = 'test',
                 Connection = 'EventHubConnectionAppSetting',
                 Cardinality = 'Many',
             };
@@ -819,7 +809,6 @@ namespace Microsoft.Azure.Functions.Worker
             Function1RawBindings.Add(Function1binding0JSON);
             var Function1 = new DefaultFunctionMetadata
             {
-                FunctionId = Guid.NewGuid().ToString(),
                 Language = 'dotnet-isolated',
                 Name = 'ListPocoInputFunction',
                 EntryPoint = 'TestProject.EventHubsInput.ListPocoInputFunction',
@@ -834,7 +823,7 @@ namespace Microsoft.Azure.Functions.Worker
     {
         ///<summary>
         /// Adds the GeneratedFunctionMetadataProvider to the service collection.
-        /// During initialization, the worker will return generated funciton metadata instead of relying on the Azure Functions host for function indexing.
+        /// During initialization, the worker will return generated function metadata instead of relying on the Azure Functions host for function indexing.
         ///</summary>
         public static IHostBuilder ConfigureGeneratedFunctionMetadataProvider(this IHostBuilder builder)
         {

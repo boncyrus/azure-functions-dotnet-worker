@@ -102,33 +102,32 @@ namespace Microsoft.Azure.Functions.Worker
             var metadataList = new List<IFunctionMetadata>();
             var Function0RawBindings = new List<string>();
             var Function0binding0 = new {
-                name = 'req',
-                type = 'HttpTrigger',
-                direction = 'In',
-                authLevel = (AuthorizationLevel)0,
-                methods = new List<string> { 'get','post' },
+                Name = 'req',
+                Type = 'HttpTrigger',
+                Direction = 'In',
+                AuthLevel = (AuthorizationLevel)0,
+                Methods = new List<string> { 'get','post' },
             };
             var Function0binding0JSON = JsonSerializer.Serialize(Function0binding0);
             Function0RawBindings.Add(Function0binding0JSON);
             var Function0binding1 = new {
-                name = 'Name',
-                type = 'Queue',
-                direction = 'Out',
-                queueName = 'functionstesting2',
+                Name = 'Name',
+                Type = 'Queue',
+                Direction = 'Out',
+                QueueName = 'functionstesting2',
                 Connection = 'AzureWebJobsStorage',
             };
             var Function0binding1JSON = JsonSerializer.Serialize(Function0binding1);
             Function0RawBindings.Add(Function0binding1JSON);
             var Function0binding2 = new {
-                name = 'HttpResponse',
-                type = 'http',
-                direction = 'Out',
+                Name = 'HttpResponse',
+                Type = 'http',
+                Direction = 'Out',
             };
             var Function0binding2JSON = JsonSerializer.Serialize(Function0binding2);
             Function0RawBindings.Add(Function0binding2JSON);
             var Function0 = new DefaultFunctionMetadata
             {
-                FunctionId = Guid.NewGuid().ToString(),
                 Language = 'dotnet-isolated',
                 Name = 'HttpTriggerWithMultipleOutputBindings',
                 EntryPoint = 'TestProject.HttpTriggerWithMultipleOutputBindings.Run',
@@ -143,7 +142,7 @@ namespace Microsoft.Azure.Functions.Worker
     {
         ///<summary>
         /// Adds the GeneratedFunctionMetadataProvider to the service collection.
-        /// During initialization, the worker will return generated funciton metadata instead of relying on the Azure Functions host for function indexing.
+        /// During initialization, the worker will return generated function metadata instead of relying on the Azure Functions host for function indexing.
         ///</summary>
         public static IHostBuilder ConfigureGeneratedFunctionMetadataProvider(this IHostBuilder builder)
         {
@@ -234,43 +233,42 @@ namespace Microsoft.Azure.Functions.Worker
             var metadataList = new List<IFunctionMetadata>();
             var Function0RawBindings = new List<string>();
             var Function0binding0 = new {
-                name = 'req',
-                type = 'HttpTrigger',
-                direction = 'In',
-                authLevel = (AuthorizationLevel)0,
-                methods = new List<string> { 'get','post' },
+                Name = 'req',
+                Type = 'HttpTrigger',
+                Direction = 'In',
+                AuthLevel = (AuthorizationLevel)0,
+                Methods = new List<string> { 'get','post' },
             };
             var Function0binding0JSON = JsonSerializer.Serialize(Function0binding0);
             Function0RawBindings.Add(Function0binding0JSON);
             var Function0binding1 = new {
-                name = 'myBlob',
-                type = 'Blob',
-                direction = 'In',
-                blobPath = 'test-samples/sample1.txt',
+                Name = 'myBlob',
+                Type = 'Blob',
+                Direction = 'In',
+                BlobPath = 'test-samples/sample1.txt',
                 Connection = 'AzureWebJobsStorage',
-                dataType = 'String',
+                DataType = 'String',
             };
             var Function0binding1JSON = JsonSerializer.Serialize(Function0binding1);
             Function0RawBindings.Add(Function0binding1JSON);
             var Function0binding2 = new {
-                name = 'Book',
-                type = 'Queue',
-                direction = 'Out',
-                queueName = 'functionstesting2',
+                Name = 'Book',
+                Type = 'Queue',
+                Direction = 'Out',
+                QueueName = 'functionstesting2',
                 Connection = 'AzureWebJobsStorage',
             };
             var Function0binding2JSON = JsonSerializer.Serialize(Function0binding2);
             Function0RawBindings.Add(Function0binding2JSON);
             var Function0binding3 = new {
-                name = 'HttpResponse',
-                type = 'http',
-                direction = 'Out',
+                Name = 'HttpResponse',
+                Type = 'http',
+                Direction = 'Out',
             };
             var Function0binding3JSON = JsonSerializer.Serialize(Function0binding3);
             Function0RawBindings.Add(Function0binding3JSON);
             var Function0 = new DefaultFunctionMetadata
             {
-                FunctionId = Guid.NewGuid().ToString(),
                 Language = 'dotnet-isolated',
                 Name = 'HttpTriggerWithBlobInput',
                 EntryPoint = 'TestProject.HttpTriggerWithBlobInput.Run',
@@ -285,7 +283,7 @@ namespace Microsoft.Azure.Functions.Worker
     {
         ///<summary>
         /// Adds the GeneratedFunctionMetadataProvider to the service collection.
-        /// During initialization, the worker will return generated funciton metadata instead of relying on the Azure Functions host for function indexing.
+        /// During initialization, the worker will return generated function metadata instead of relying on the Azure Functions host for function indexing.
         ///</summary>
         public static IHostBuilder ConfigureGeneratedFunctionMetadataProvider(this IHostBuilder builder)
         {
@@ -363,24 +361,23 @@ namespace Microsoft.Azure.Functions.Worker
             var metadataList = new List<IFunctionMetadata>();
             var Function0RawBindings = new List<string>();
             var Function0binding0 = new {
-                name = 'req',
-                type = 'HttpTrigger',
-                direction = 'In',
-                authLevel = (AuthorizationLevel)0,
-                methods = new List<string> { 'get' },
+                Name = 'req',
+                Type = 'HttpTrigger',
+                Direction = 'In',
+                AuthLevel = (AuthorizationLevel)0,
+                Methods = new List<string> { 'get' },
             };
             var Function0binding0JSON = JsonSerializer.Serialize(Function0binding0);
             Function0RawBindings.Add(Function0binding0JSON);
             var Function0binding1 = new {
-                name = '$return',
-                type = 'http',
-                direction = 'Out',
+                Name = '$return',
+                Type = 'http',
+                Direction = 'Out',
             };
             var Function0binding1JSON = JsonSerializer.Serialize(Function0binding1);
             Function0RawBindings.Add(Function0binding1JSON);
             var Function0 = new DefaultFunctionMetadata
             {
-                FunctionId = Guid.NewGuid().ToString(),
                 Language = 'dotnet-isolated',
                 Name = 'Products',
                 EntryPoint = 'TestProject.HttpTriggerWithBlobInput.Run',
@@ -395,7 +392,7 @@ namespace Microsoft.Azure.Functions.Worker
     {
         ///<summary>
         /// Adds the GeneratedFunctionMetadataProvider to the service collection.
-        /// During initialization, the worker will return generated funciton metadata instead of relying on the Azure Functions host for function indexing.
+        /// During initialization, the worker will return generated function metadata instead of relying on the Azure Functions host for function indexing.
         ///</summary>
         public static IHostBuilder ConfigureGeneratedFunctionMetadataProvider(this IHostBuilder builder)
         {
@@ -460,17 +457,16 @@ namespace Microsoft.Azure.Functions.Worker
             var metadataList = new List<IFunctionMetadata>();
             var Function0RawBindings = new List<string>();
             var Function0binding0 = new {
-                name = 'timer',
-                type = 'TimerTrigger',
-                direction = 'In',
-                schedule = '0 0 0 * * *',
+                Name = 'timer',
+                Type = 'TimerTrigger',
+                Direction = 'In',
+                Schedule = '0 0 0 * * *',
                 RunOnStartup = 'False',
             };
             var Function0binding0JSON = JsonSerializer.Serialize(Function0binding0);
             Function0RawBindings.Add(Function0binding0JSON);
             var Function0 = new DefaultFunctionMetadata
             {
-                FunctionId = Guid.NewGuid().ToString(),
                 Language = 'dotnet-isolated',
                 Name = 'TimerFunction',
                 EntryPoint = 'TestProject.Timer.RunTimer',
@@ -485,7 +481,7 @@ namespace Microsoft.Azure.Functions.Worker
     {
         ///<summary>
         /// Adds the GeneratedFunctionMetadataProvider to the service collection.
-        /// During initialization, the worker will return generated funciton metadata instead of relying on the Azure Functions host for function indexing.
+        /// During initialization, the worker will return generated function metadata instead of relying on the Azure Functions host for function indexing.
         ///</summary>
         public static IHostBuilder ConfigureGeneratedFunctionMetadataProvider(this IHostBuilder builder)
         {
@@ -551,25 +547,24 @@ namespace Microsoft.Azure.Functions.Worker
             var metadataList = new List<IFunctionMetadata>();
             var Function0RawBindings = new List<string>();
             var Function0binding0 = new {
-                name = 'myReq',
-                type = 'HttpTrigger',
-                direction = 'In',
-                authLevel = (AuthorizationLevel)4,
-                methods = new List<string> { 'get','Post' },
+                Name = 'myReq',
+                Type = 'HttpTrigger',
+                Direction = 'In',
+                AuthLevel = (AuthorizationLevel)4,
+                Methods = new List<string> { 'get','Post' },
                 Route = '/api2',
             };
             var Function0binding0JSON = JsonSerializer.Serialize(Function0binding0);
             Function0RawBindings.Add(Function0binding0JSON);
             var Function0binding1 = new {
-                name = 'Result',
-                type = 'http',
-                direction = 'Out',
+                Name = 'Result',
+                Type = 'http',
+                Direction = 'Out',
             };
             var Function0binding1JSON = JsonSerializer.Serialize(Function0binding1);
             Function0RawBindings.Add(Function0binding1JSON);
             var Function0 = new DefaultFunctionMetadata
             {
-                FunctionId = Guid.NewGuid().ToString(),
                 Language = 'dotnet-isolated',
                 Name = 'FunctionName',
                 EntryPoint = 'TestProject.BasicHttp.Http',
@@ -584,7 +579,7 @@ namespace Microsoft.Azure.Functions.Worker
     {
         ///<summary>
         /// Adds the GeneratedFunctionMetadataProvider to the service collection.
-        /// During initialization, the worker will return generated funciton metadata instead of relying on the Azure Functions host for function indexing.
+        /// During initialization, the worker will return generated function metadata instead of relying on the Azure Functions host for function indexing.
         ///</summary>
         public static IHostBuilder ConfigureGeneratedFunctionMetadataProvider(this IHostBuilder builder)
         {

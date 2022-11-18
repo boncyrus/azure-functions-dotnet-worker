@@ -19,6 +19,7 @@ namespace Microsoft.Azure.Functions.Worker.Definition
         {
             EntryPoint = loadRequest.Metadata.EntryPoint;
             Name = loadRequest.Metadata.Name;
+            Id = loadRequest.FunctionId;
 
             string? scriptRoot = Environment.GetEnvironmentVariable("AzureWebJobsScriptRoot")!;
             if (string.IsNullOrWhiteSpace(scriptRoot))
@@ -32,7 +33,6 @@ namespace Microsoft.Azure.Functions.Worker.Definition
 
             string scriptFile = Path.Combine(scriptRoot, loadRequest.Metadata.ScriptFile);
             PathToAssembly = Path.GetFullPath(scriptFile);
-            Id = loadRequest.FunctionId;
 
             var grpcBindingsGroup = loadRequest.Metadata.Bindings.GroupBy(kv => kv.Value.Direction);
             var grpcInputBindings = grpcBindingsGroup.Where(kv => kv.Key == BindingInfo.Types.Direction.In).FirstOrDefault();

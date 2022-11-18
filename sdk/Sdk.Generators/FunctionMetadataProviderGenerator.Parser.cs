@@ -60,7 +60,6 @@ namespace Microsoft.Azure.Functions.Worker.Sdk.Generators
                     {
                         Name = functionName,
                         EntryPoint = assemblyName + "." + functionClassName + "." + method.Identifier.ValueText,
-                        FunctionId = Guid.NewGuid().ToString(),
                         Language = "dotnet-isolated",
                         ScriptFile = scriptFile
                     };
@@ -285,13 +284,13 @@ namespace Microsoft.Azure.Functions.Worker.Sdk.Generators
                             
                             if (dataType is not DataType.Undefined)
                             {
-                                bindingDict!.Add("dataType", FormatObject(Enum.GetName(typeof(DataType), dataType)));
+                                bindingDict!.Add("DataType", FormatObject(Enum.GetName(typeof(DataType), dataType)));
                             }
 
                             // special handling for EventHubsTrigger - we need to define a property called "Cardinality"
                             if (validEventHubs)
                             {
-                                if (!bindingDict!.Keys.Contains("Cardinality"))
+                                if (!bindingDict!.ContainsKey("Cardinality"))
                                 {
                                     bindingDict["Cardinality"] = cardinality is Cardinality.Many ? FormatObject("Many") : FormatObject("One");
                                 }
@@ -434,17 +433,17 @@ namespace Microsoft.Azure.Functions.Worker.Sdk.Generators
             {
                 var httpBinding = new Dictionary<string, string>();
 
-                httpBinding.Add("name", FormatObject(returnBindingName));
-                httpBinding.Add("type", FormatObject("http"));
-                httpBinding.Add("direction", FormatObject("Out"));
+                httpBinding.Add("Name", FormatObject(returnBindingName));
+                httpBinding.Add("Type", FormatObject("http"));
+                httpBinding.Add("Direction", FormatObject("Out"));
 
                 return httpBinding;
             }
 
-            private bool TryCreateBindingDict(AttributeData bindingAttrData, string bindingName, Location bindingLocation, out IDictionary<string, string>? bindings)
+            private bool TryCreateBindingDict(AttributeData bindingAttrData, string bindingName, Location? bindingLocation, out IDictionary<string, string>? bindings)
             {
                 // Get binding info as a dictionary with keys as the property name and value as the property value
-                if (!TryGetAttributeProperties(bindingAttrData, bindingLocation, out IDictionary<string, object>? attributeProperties))
+                if (!TryGetAttributeProperties(bindingAttrData, bindingLocation, out IDictionary<string, object?>? attributeProperties))
                 {
                     bindings = null;
                     return false;
@@ -461,35 +460,35 @@ namespace Microsoft.Azure.Functions.Worker.Sdk.Generators
 
                 var bindingCount = attributeProperties!.Count + 3;
                 bindings = new Dictionary<string, string>(capacity: bindingCount);
-                bindings.Add("name", FormatObject(bindingName));
-                bindings.Add("type", FormatObject(bindingType));
-                bindings.Add("direction", FormatObject(bindingDirection));
+                bindings.Add("Name", FormatObject(bindingName));
+                bindings.Add("Type", FormatObject(bindingType));
+                bindings.Add("Direction", FormatObject(bindingDirection));
 
                 // Add additional bindingInfo to the anonymous type because some functions have more properties than others
                 foreach (var prop in attributeProperties!) // attributeProperties won't be null here b/c we would've exited this method earlier if it was during TryGetAttributeProperties check
                 {
                     var propertyName = prop.Key;
 
-                    if (prop.Value.GetType().IsArray)
+                    if (prop.Value?.GetType().IsArray ?? false)
                     {
                         string arr = FormatArray((IEnumerable)prop.Value);
-                        bindings[propertyName] = arr;
+                        bindings[propertyName.UppercaseFirst()] = arr; // Uppercase first to use PascalCase in generated file's anonymous type
                     }
                     else
                     {
                         bool isEnum = string.Equals(prop.Key, "authLevel", StringComparison.OrdinalIgnoreCase); // prop keys come from Azure Functions defined attributes so we can check directly for authLevel
 
                         var propertyValue = FormatObject(prop.Value, isEnum);
-                        bindings[propertyName] = propertyValue;
+                        bindings[propertyName.UppercaseFirst()] = propertyValue;
                     }
                 }
 
                 return true;
             }
 
-            private bool TryGetAttributeProperties(AttributeData attributeData, Location attribLocation, out IDictionary<string, object>? attrProperties)
+            private bool TryGetAttributeProperties(AttributeData attributeData, Location? attribLocation, out IDictionary<string, object?>? attrProperties)
             {
-                attrProperties = new Dictionary<string, object>();
+                attrProperties = new Dictionary<string, object?>();
 
                 if (attributeData.ConstructorArguments.Any())
                 {
@@ -504,7 +503,7 @@ namespace Microsoft.Azure.Functions.Worker.Sdk.Generators
                 {
                     if (namedArgument.Value.Value != null)
                     {
-                        if (String.Equals(namedArgument.Key, Constants.IsBatchedKey) && !attrProperties.Keys.Contains("Cardinality"))
+                        if (string.Equals(namedArgument.Key, Constants.IsBatchedKey) && !attrProperties.ContainsKey("Cardinality"))
                         {
                             var argValue = (bool)namedArgument.Value.Value; // isBatched only takes in booleans and the generator will parse it as a bool so we can type cast this to use in the next line
 
@@ -512,7 +511,30 @@ namespace Microsoft.Azure.Functions.Worker.Sdk.Generators
                         }
                         else
                         {
-                            attrProperties[namedArgument.Key] = namedArgument.Value.Value;
+                            attrProperties[namedArgument.Key.UppercaseFirst()] = namedArgument.Value.Value;
+                        }
+                    }
+                }
+
+                // some properties have default values, so if these properties were not already defined in constructor or named arguments, we will auto-add them here
+                foreach (var member in attributeData.AttributeClass!.GetMembers().Where(a => a is IPropertySymbol))
+                {
+                    var defaultValAttrList = member.GetAttributes().Where(attr => SymbolEqualityComparer.Default.Equals(attr.AttributeClass, Compilation.GetTypeByMetadataName(Constants.DefaultValueType)));
+
+                    if (defaultValAttrList.SingleOrDefault() is { } defaultValAttr) // list will only be of size one b/c there cannot be duplicates of an attribute on one piece of syntax
+                    {
+                        var argName = member.Name;
+                        object arg = defaultValAttr.ConstructorArguments.SingleOrDefault().Value!; // only one constructor arg in DefaultValue attribute (the default value)
+                        if (arg is bool b && string.Equals(argName, Constants.IsBatchedKey))
+                        {
+                            if (!attrProperties.Keys.Contains("Cardinality"))
+                            {
+                                attrProperties["Cardinality"] = b ? "Many" : "One";
+                            }
+                        }
+                        else if (!attrProperties.Keys.Any(a => string.Equals(a, argName, StringComparison.OrdinalIgnoreCase))) // check if this property has been assigned a value already in constructor or named args
+                        {
+                            attrProperties[argName.UppercaseFirst()] = arg;
                         }
                     }
                 }
@@ -520,7 +542,7 @@ namespace Microsoft.Azure.Functions.Worker.Sdk.Generators
                 return true;
             }
 
-            private bool TryLoadConstructorArguments(AttributeData attributeData, IDictionary<string, object> dict, Location attribLocation)
+            private bool TryLoadConstructorArguments(AttributeData attributeData, IDictionary<string, object?> dict, Location? attribLocation)
             {
                 IMethodSymbol? attribMethodSymbol = attributeData.AttributeConstructor;
 
@@ -535,7 +557,9 @@ namespace Microsoft.Azure.Functions.Worker.Sdk.Generators
                 // that the constructor names would match the property names
                 for (int i = 0; i < attributeData.ConstructorArguments.Length; i++)
                 {
-                    var argumentName = attribMethodSymbol.Parameters[i].Name;
+                    string argumentName = attribMethodSymbol.Parameters[i].Name;
+                    OverrideBindingName(attributeData.AttributeClass!, ref argumentName); // either argumentName will remain unchanged OR be updated to the overridden name at the end of this.
+
                     var arg = attributeData.ConstructorArguments[i];
 
                     switch (arg.Kind)
@@ -562,6 +586,24 @@ namespace Microsoft.Azure.Functions.Worker.Sdk.Generators
                 return true;
             }
 
+            private void OverrideBindingName(INamedTypeSymbol attributeClass, ref string argumentName)
+            {
+                var bindingPropertyNameSymbol = Compilation.GetTypeByMetadataName(Constants.BindingPropertyNameAttributeType);
+
+                foreach (var prop in attributeClass.GetMembers().Where(a => a is IPropertySymbol))
+                {
+                    if (String.Equals(prop.Name, argumentName, StringComparison.OrdinalIgnoreCase)) // relies on convention where constructor parameter names match the property their value will be assigned to (JSON serialization is a precedence for this convention)
+                    {
+                        var bindingNameAttrList = prop.GetAttributes().Where(attr => SymbolEqualityComparer.Default.Equals(attr.AttributeClass, bindingPropertyNameSymbol));
+
+                        if (bindingNameAttrList.SingleOrDefault() is { } bindingNameAttr) // there will only be one BindingAttributeName attribute b/c there can't be duplicate attributes on a piece of syntax
+                        {
+                            argumentName = bindingNameAttr.ConstructorArguments.First().Value!.ToString(); // there is only one constructor argument for this binding attribute (the binding name override)
+                        }
+                    }
+                }
+            }
+
             /// <summary>
             /// This method verifies that an EventHubsTrigger matches our expectations on cardinality (isBatched property). If isBatched is set to true, the parameter with the
             /// attribute must be an enumerable type.
@@ -571,7 +613,7 @@ namespace Microsoft.Azure.Functions.Worker.Sdk.Generators
                 dataType = DataType.Undefined;
                 cardinality = Cardinality.Undefined;
 
-                // Check if IsBatched is false (by default it is true and does not appear in the attribute constructor)
+                // check if IsBatched is defined in the NamedArguments
                 foreach (var arg in attribute.NamedArguments)
                 {
                     if (String.Equals(arg.Key, Constants.IsBatchedKey) &&
@@ -586,6 +628,18 @@ namespace Microsoft.Azure.Functions.Worker.Sdk.Generators
                             return true;
                         }
                     }
+                }
+
+                // Check the default value of IsBatched
+                var eventHubsAttr = attribute.AttributeClass;
+                var isBatchedProp = eventHubsAttr!.GetMembers().Where(m => string.Equals(m.Name, Constants.IsBatchedKey, StringComparison.OrdinalIgnoreCase)).SingleOrDefault();
+                AttributeData defaultValAttr = isBatchedProp.GetAttributes().Where(attr => SymbolEqualityComparer.Default.Equals(attr.AttributeClass, Compilation.GetTypeByMetadataName(Constants.DefaultValueType))).SingleOrDefault();
+                var defaultVal = defaultValAttr.ConstructorArguments.SingleOrDefault().Value!.ToString(); // there is only one constructor arg, the default value
+                if (!bool.TryParse(defaultVal, out bool b) || !b)
+                {
+                    dataType = GetDataType(parameterSymbol.Type);
+                    cardinality = Cardinality.One;
+                    return true;
                 }
 
                 // we check if the param is an array type
