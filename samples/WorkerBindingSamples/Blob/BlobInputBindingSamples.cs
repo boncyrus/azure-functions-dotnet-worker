@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Text;
@@ -33,6 +34,35 @@ namespace SampleApp
 
             return req.CreateResponse(HttpStatusCode.OK);
         }
+
+        [Function(nameof(BlobCollectionFunction))]
+        public HttpResponseData BlobCollectionFunction(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequestData req,
+            [BlobInput("input-container")] IEnumerable<BlobClient> blobs)
+        {
+            _logger.LogInformation("Blobs within container:");
+            foreach (BlobClient blob in blobs)
+            {
+                _logger.LogInformation(blob.Name);
+            }
+
+            return req.CreateResponse(HttpStatusCode.OK);
+        }
+
+        [Function(nameof(BlobCollectionStringFunction))]
+        public HttpResponseData BlobCollectionStringFunction(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequestData req,
+            [BlobInput("input-container")] IEnumerable<string> blobs)
+        {
+            _logger.LogInformation("Blobs within container:");
+            foreach (string blob in blobs)
+            {
+                _logger.LogInformation(blob);
+            }
+
+            return req.CreateResponse(HttpStatusCode.OK);
+        }
+
 
         [Function(nameof(BlobInputStreamFunction))]
         public HttpResponseData BlobInputStreamFunction(
