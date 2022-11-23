@@ -22,27 +22,20 @@ namespace Microsoft.Azure.Functions.Worker
     {
         public ValueTask<ConversionResult> ConvertAsync(ConverterContext context)
         {
-            if (context.Source is not CollectionModelBindingData collectionBindingData)
+            if (context.Source is CollectionModelBindingData collectionBindingData)
             {
-                return new ValueTask<ConversionResult>(ConversionResult.Unhandled());
-            }
-
-            if(collectionBindingData != null)
-            {
-                var collectionResult = ConvertCollectionModelBindingDataAsync(context.TargetType, collectionBindingData);
-
-                if (collectionResult is not null && collectionResult.Any())
+                if(collectionBindingData != null)
                 {
-                    return new ValueTask<ConversionResult>(ConversionResult.Success(collectionResult));
-                }                
-            }
-            else
-            {
-                if (context.Source is not ModelBindingData bindingData)
-                {
-                    return new ValueTask<ConversionResult>(ConversionResult.Unhandled());
+                    var collectionResult = ConvertCollectionModelBindingDataAsync(context.TargetType, collectionBindingData);
+
+                    if (collectionResult is not null && collectionResult.Any())
+                    {
+                        return new ValueTask<ConversionResult>(ConversionResult.Success(collectionResult));
+                    }                
                 }
-
+            }
+            else if (context.Source is ModelBindingData bindingData)
+            {
                 var result = ConvertModelBindingDataAsync(bindingData, context.TargetType);
 
                 if (result is not null)
