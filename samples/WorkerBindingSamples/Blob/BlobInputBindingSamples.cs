@@ -35,6 +35,18 @@ namespace SampleApp
             return req.CreateResponse(HttpStatusCode.OK);
         }
 
+        [Function(nameof(BlobInputClientFunction1))]
+        public async Task<HttpResponseData> BlobInputClientFunction1(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequestData req,
+            [BlobInput("input-container/sample1.txt", Connection = "Storage")] BlobClient client)
+        {
+            var downloadResult = await client.DownloadContentAsync();
+            var content = downloadResult.Value.Content.ToString();
+            _logger.LogInformation("Blob content: {content}", content);
+
+            return req.CreateResponse(HttpStatusCode.OK);
+        }
+
         [Function(nameof(BlobCollectionFunction))]
         public HttpResponseData BlobCollectionFunction(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequestData req,
@@ -63,43 +75,12 @@ namespace SampleApp
             return req.CreateResponse(HttpStatusCode.OK);
         }
 
-
-        [Function(nameof(BlobInputStreamFunction))]
-        public HttpResponseData BlobInputStreamFunction(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequestData req,
-            [BlobInput("input-container/sample1.txt", Connection = "AzureWebJobsStorage")] Stream stream)
+        
+        [Function(nameof(BlobMSIFunction))]
+        public void BlobMSIFunction(
+        [BlobTrigger("blobtest-trigger/{name}", Connection = "")] string myBlob, string name)
         {
-            using var blobStreamReader = new StreamReader(stream);
-            _logger.LogInformation("Blob content: {stream}", blobStreamReader.ReadToEnd());
-
-            return req.CreateResponse(HttpStatusCode.OK);
-        }
-
-        [Function(nameof(BlobInputByteArrayFunction))]
-        public HttpResponseData BlobInputByteArrayFunction(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequestData req,
-            [BlobInput("input-container/sample1.txt", Connection = "AzureWebJobsStorage")] Byte[] data)
-        {
-            _logger.LogInformation($"Blob content: {Encoding.Default.GetString(data)}");
-            return req.CreateResponse(HttpStatusCode.OK);
-        }
-
-        [Function(nameof(BlobInputStringFunction))]
-        public HttpResponseData BlobInputStringFunction(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequestData req,
-            [BlobInput("input-container/sample1.txt", Connection = "AzureWebJobsStorage")] string data)
-        {
-            _logger.LogInformation($"Blob content: {data}");
-            return req.CreateResponse(HttpStatusCode.OK);
-        }
-
-        [Function(nameof(BlobInputBookFunction))]
-        public HttpResponseData BlobInputBookFunction(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequestData req,
-            [BlobInput("input-container/book.json", Connection = "AzureWebJobsStorage")] Book data)
-        {
-            _logger.LogInformation($"Book name: {data.Name}");
-            return req.CreateResponse(HttpStatusCode.OK);
+            _logger.LogInformation($"C# Blob trigger function Processed blob\n Name: {name} \n Data: {myBlob}");
         }
     }
 }

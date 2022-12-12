@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
+using Azure.Identity;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Specialized;
 using Microsoft.Azure.Functions.Worker.Core;
@@ -26,7 +27,7 @@ namespace Microsoft.Azure.Functions.Worker
             {
                 if(collectionBindingData != null)
                 {
-                    var collectionResult = ConvertCollectionModelBindingDataAsync(context.TargetType, collectionBindingData);
+                    var collectionResult = ConvertCollectionModelBindingDataAsync(context.TargetType, collectionBindingData, context);
 
                     if (collectionResult is not null && collectionResult.Any())
                     {
@@ -36,7 +37,7 @@ namespace Microsoft.Azure.Functions.Worker
             }
             else if (context.Source is ModelBindingData bindingData)
             {
-                var result = ConvertModelBindingDataAsync(bindingData, context.TargetType);
+                var result = ConvertModelBindingDataAsync(bindingData, context.TargetType, context);
 
                 if (result is not null)
                 {
@@ -47,7 +48,7 @@ namespace Microsoft.Azure.Functions.Worker
             return new ValueTask<ConversionResult>(ConversionResult.Unhandled());
         }
 
-        private object? ConvertModelBindingDataAsync(ModelBindingData bindingData, Type TargetType)
+        private object? ConvertModelBindingDataAsync(ModelBindingData bindingData, Type TargetType, ConverterContext context)
         {
             if (bindingData.Source is not Constants.BlobExtensionName)
             {
@@ -69,18 +70,18 @@ namespace Microsoft.Azure.Functions.Worker
             }
 
             var connectionString = connectionName is null ? null : Environment.GetEnvironmentVariable(connectionName);
-            var result = ToTargetType(TargetType, connectionString, containerName, blobName).GetAwaiter().GetResult();
+            var result = ToTargetType(TargetType, connectionString, containerName, blobName, context).GetAwaiter().GetResult();
 
             return result;
         }
 
-        private IEnumerable<object> ConvertCollectionModelBindingDataAsync(Type TargetType, CollectionModelBindingData collectionModelBindingData)
+        private IEnumerable<object> ConvertCollectionModelBindingDataAsync(Type TargetType, CollectionModelBindingData collectionModelBindingData, ConverterContext context)
         {
             var collectionblob = new List<object>();
 
             foreach(ModelBindingData modelBindingData in collectionModelBindingData.modelBindingDataArray)
             {
-                var element = ConvertModelBindingDataAsync(modelBindingData, TargetType.GenericTypeArguments[0]);
+                var element = ConvertModelBindingDataAsync(modelBindingData, TargetType.GenericTypeArguments[0], context);
                 if (element != null)
                 {
                     collectionblob.Add(element);
@@ -108,16 +109,16 @@ namespace Microsoft.Azure.Functions.Worker
             return true;
         }
 
-        private async Task<object?> ToTargetType(Type targetType, string connectionString, string containerName, string blobName) => targetType switch
+        private async Task<object?> ToTargetType(Type targetType, string connectionString, string containerName, string blobName, ConverterContext context) => targetType switch
         {
-            Type _ when targetType == typeof(String) => await GetBlobString(connectionString, containerName, blobName),
+            Type _ when targetType == typeof(String) => await GetBlobString(connectionString, containerName, blobName, context),
             Type _ when targetType == typeof(Stream) => await GetBlobStream(connectionString, containerName, blobName),
             Type _ when targetType == typeof(Byte[]) => await GetBlobBinaryData(connectionString, containerName, blobName),
-            Type _ when targetType == typeof(BlobClient) => CreateBlobReference<BlobClient>(connectionString, containerName, blobName),
+            Type _ when targetType == typeof(BlobClient) => CreateBlobReference<BlobClient>(connectionString, containerName, blobName, context),
             Type _ when targetType == typeof(BlockBlobClient) => CreateBlobReference<BlockBlobClient>(connectionString, containerName, blobName),
             Type _ when targetType == typeof(PageBlobClient) => CreateBlobReference<PageBlobClient>(connectionString, containerName, blobName),
             Type _ when targetType == typeof(AppendBlobClient) => CreateBlobReference<AppendBlobClient>(connectionString, containerName, blobName),
-            Type _ when targetType == typeof(BlobContainerClient) => CreateBlobContainerClient(connectionString, containerName),
+            Type _ when targetType == typeof(BlobContainerClient) => CreateBlobContainerClient(connectionString, containerName, context),
             _ => await DeserializeToTargetObject(targetType, connectionString, containerName, blobName)
         };
 
@@ -133,9 +134,9 @@ namespace Microsoft.Azure.Functions.Worker
             return JsonConvert.DeserializeObject(content, targetType);
         }
 
-        private async Task<string> GetBlobString(string connectionString, string containerName, string blobName)
+        private async Task<string> GetBlobString(string connectionString, string containerName, string blobName, ConverterContext context = null)
         {
-            var client = CreateBlobReference<BlobClient>(connectionString, containerName, blobName);
+            var client = CreateBlobReference<BlobClient>(connectionString, containerName, blobName, context);
             var download = await client.DownloadContentAsync();
             return download.Value.Content.ToString();
         }
@@ -157,30 +158,41 @@ namespace Microsoft.Azure.Functions.Worker
             return download.Value.Content;
         }
 
-        private BlobContainerClient CreateBlobContainerClient(string connectionString, string containerName)
+        private BlobContainerClient CreateBlobContainerClient(string connectionString, string containerName, ConverterContext context = null)
         {
             BlobContainerClient container = new(connectionString, containerName);
             return container;
         }
 
-        private T CreateBlobReference<T>(string connectionString, string containerName, string blobName) where T : BlobBaseClient
+        private T CreateBlobReference<T>(string connectionString, string containerName, string blobName, ConverterContext context = null) where T : BlobBaseClient
         {
             if (string.IsNullOrEmpty(blobName))
             {
                 throw new ArgumentNullException(nameof(blobName));
             }
+            
+            BlobBaseClient blob;
 
-            Type targetType = typeof(T);
-            var container = CreateBlobContainerClient(connectionString, containerName);
-
-            BlobBaseClient blob = targetType switch
+            if (connectionString == null)
             {
-                Type _ when targetType == typeof(BlobClient) => container.GetBlobClient(blobName),
-                Type _ when targetType == typeof(BlockBlobClient) => container.GetBlockBlobClient(blobName),
-                Type _ when targetType == typeof(PageBlobClient) => container.GetPageBlobClient(blobName),
-                Type _ when targetType == typeof(AppendBlobClient) => container.GetAppendBlobClient(blobName),
-                _ => new(connectionString, containerName, blobName)
-            };
+                // Managed Identity
+                context.FunctionContext.BindingContext.BindingData.TryGetValue("Uri", out var containerEndpoint);
+                blob = new BlobClient(new Uri(containerEndpoint.ToString().Trim('\\', '"')), new DefaultAzureCredential());
+            }
+            else
+            {
+                Type targetType = typeof(T);
+                var container = CreateBlobContainerClient(connectionString, containerName, context);
+
+                blob = targetType switch
+                {
+                    Type _ when targetType == typeof(BlobClient) => container.GetBlobClient(blobName),
+                    Type _ when targetType == typeof(BlockBlobClient) => container.GetBlockBlobClient(blobName),
+                    Type _ when targetType == typeof(PageBlobClient) => container.GetPageBlobClient(blobName),
+                    Type _ when targetType == typeof(AppendBlobClient) => container.GetAppendBlobClient(blobName),
+                    _ => new(connectionString, containerName, blobName)
+                };
+            }
 
             return (T)blob;
         }
