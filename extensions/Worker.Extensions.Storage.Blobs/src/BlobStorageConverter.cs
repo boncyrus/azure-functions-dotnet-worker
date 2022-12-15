@@ -23,6 +23,7 @@ namespace Microsoft.Azure.Functions.Worker
     {
         public ValueTask<ConversionResult> ConvertAsync(ConverterContext context)
         {
+            /*
             if (context.Source is CollectionModelBindingData collectionBindingData)
             {
                 if(collectionBindingData != null)
@@ -35,7 +36,8 @@ namespace Microsoft.Azure.Functions.Worker
                     }                
                 }
             }
-            else if (context.Source is ModelBindingData bindingData)
+            else */
+            if (context.Source is ModelBindingData bindingData)
             {
                 var result = ConvertModelBindingDataAsync(bindingData, context.TargetType, context);
 
@@ -177,7 +179,26 @@ namespace Microsoft.Azure.Functions.Worker
             {
                 // Managed Identity
                 context.FunctionContext.BindingContext.BindingData.TryGetValue("Uri", out var containerEndpoint);
+                
+                /*
+                // for logged in user and AzureWebJobsStorage
                 blob = new BlobClient(new Uri(containerEndpoint.ToString().Trim('\\', '"')), new DefaultAzureCredential());
+                */
+
+                /*
+                // if specific clientid to be userd - userassigned
+                blob = new BlobClient(new Uri(containerEndpoint.ToString().Trim('\\', '"')),
+                new ClientSecretCredential(
+                    Environment.GetEnvironmentVariable("AzureWebJobsStorage__tenantId"),
+                    Environment.GetEnvironmentVariable("AzureWebJobsStorage__clientId"),
+                    Environment.GetEnvironmentVariable("AzureWebJobsStorage__clientSecret")
+                ));
+                */
+             //Approach-3 - Credential and ClientId. If credential== ManagedIdentity 
+                blob = new BlobClient(new Uri(containerEndpoint.ToString().Trim('\\', '"')),
+                new ManagedIdentityCredential(
+                    Environment.GetEnvironmentVariable("AzureWebJobsStorage__clientId")
+                ));
             }
             else
             {
