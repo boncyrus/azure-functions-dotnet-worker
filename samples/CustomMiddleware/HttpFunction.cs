@@ -7,34 +7,26 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 
-namespace CustomMiddleware
+namespace MyCompany
 {
-    public class HttpFunction
+    public class MyHttpFunctions
     {
-        [Function(nameof(HttpFunction))]
-        public static HttpResponseData Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequestData req,
-            FunctionContext context)
+        private readonly ILogger _logger;
+
+        public MyHttpFunctions(ILoggerFactory loggerFactory)
         {
-            if (req.Url.Query.Contains("throw-exception"))
-            {
-                throw new Exception("App code failed");
-            }
+            _logger = loggerFactory.CreateLogger<MyHttpFunctions>();
+        }
 
-            var logger = context.GetLogger<HttpFunction>();
-
-            // Get the item set by the middleware
-            if (context.Items.TryGetValue("middlewareitem", out object value) && value is string message)
-            {
-                logger.LogInformation("From middleware: {message}", message);
-            }
+        [Function("Function1")]
+        public HttpResponseData Run([HttpTrigger(AuthorizationLevel.Function, "get", "post")] HttpRequestData req)
+        {
+            _logger.LogInformation("C# HTTP trigger function processed a request.");
 
             var response = req.CreateResponse(HttpStatusCode.OK);
-
-            // Set a context item the middleware can retrieve
-            context.Items.Add("functionitem", "Hello from function!");
-
             response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
-            response.WriteString("Welcome to .NET 6!!");
+
+            response.WriteString("Welcome to Azure Functions!");
 
             return response;
         }
