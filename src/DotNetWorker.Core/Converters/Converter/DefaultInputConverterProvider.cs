@@ -37,6 +37,16 @@ namespace Microsoft.Azure.Functions.Worker.Converters
             {
                 throw new InvalidOperationException("No input converters found in worker options.");
             }
+
+            // Create some converters manually so they are not trimmed (since we have some lazy implementation)
+            var fc = typeof(FunctionContextConverter);
+            var httpReqC = typeof(TypeConverter);
+
+            var c1 = (IInputConverter)ActivatorUtilities.CreateInstance(_serviceProvider, fc);
+            _converterCache[fc.AssemblyQualifiedName!] = c1;
+
+            var c2 = (IInputConverter)ActivatorUtilities.CreateInstance(_serviceProvider, httpReqC);
+            _converterCache[fc.AssemblyQualifiedName!] = c2;
         }
 
         /// <summary>

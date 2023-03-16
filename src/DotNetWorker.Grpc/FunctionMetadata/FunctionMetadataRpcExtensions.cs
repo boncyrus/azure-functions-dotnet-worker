@@ -1,11 +1,40 @@
 ﻿using System;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Google.Protobuf.Collections;
 using Microsoft.Azure.Functions.Worker.Core.FunctionMetadata;
 using Microsoft.Azure.Functions.Worker.Grpc.Messages;
 
 namespace Microsoft.Azure.Functions.Worker.Grpc.FunctionMetadata
 {
+    public class HttpBindingInfo
+    {
+        [JsonPropertyName("name")]
+        public string? Name { set; get; }
+
+        [JsonPropertyName("type")]
+
+        public string? Type { set; get; }
+
+        [JsonPropertyName("direction")]
+
+        public string? Direction { set; get; }
+
+        [JsonPropertyName("authLevel")]
+
+        public string? AuthLevel { set; get; }
+
+        [JsonPropertyName("methods")]
+
+        public string[] Methods { set; get; }
+    }
+
+    [JsonSourceGenerationOptions(WriteIndented = true)]
+    [JsonSerializable(typeof(HttpBindingInfo))]
+    public partial class SourceGenerationContext : JsonSerializerContext
+    {
+    }
+
     internal static class FunctionMetadataRpcExtensions
     {
         internal static MapField<string, BindingInfo> GetBindingInfoList(this IFunctionMetadata funcMetadata)

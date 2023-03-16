@@ -16,7 +16,7 @@ namespace Microsoft.Azure.Functions.Worker
         private static readonly Assembly _thisAssembly = typeof(WorkerInformation).Assembly;
         private static readonly FileVersionInfo _fileVersionInfo = FileVersionInfo.GetVersionInfo(_thisAssembly.Location);
 
-        private string? _workerVersion;
+        private string? _workerVersion = "2.0.0-preview1";
 
         public static WorkerInformation Instance = new();
 
@@ -33,7 +33,7 @@ namespace Microsoft.Azure.Functions.Worker
         public string WorkerVersion => _workerVersion ??= _thisAssembly.GetName().Version?.ToString()!;
 
 
-        public string? ProductVersion => _fileVersionInfo.ProductVersion;
+        public string? ProductVersion => null; // _fileVersionInfo.ProductVersion;
 
         public string FrameworkDescription => RuntimeInformation.FrameworkDescription;
 

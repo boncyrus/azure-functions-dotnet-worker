@@ -13,9 +13,9 @@ using Microsoft.Azure.Functions.Worker.Grpc.Messages;
 namespace Microsoft.Azure.Functions.Worker
 {
     internal class GrpcHttpRequestData : HttpRequestData, IDisposable
-#if NET5_0_OR_GREATER
-        , IAsyncDisposable
-#endif
+//#if NET5_0_OR_GREATER
+//        , IAsyncDisposable
+//#endif
     {
         private readonly RpcHttp _httpData;
         private Uri? _url;

@@ -68,7 +68,14 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddOptions<GrpcWorkerStartupOptions>()
                 .Configure<IConfiguration>((arguments, config) =>
                 {
-                    config.Bind(arguments);
+                    arguments.Port = Convert.ToInt32(config["port"].ToString());
+                    arguments.GrpcMaxMessageLength = Convert.ToInt32(config["grpcMaxMessageLength"].ToString());
+                    arguments.Host = config["host"].ToString();
+                    arguments.WorkerId = config["workerId"].ToString();
+                    arguments.RequestId = config["requestId"].ToString();
+
+                    // Configuration.Bind is not AOT friendly. Gets trimmed.
+                    //config.Bind(arguments);
                 });
 
             return services;
