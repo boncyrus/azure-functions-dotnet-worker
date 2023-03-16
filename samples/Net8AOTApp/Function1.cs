@@ -9,9 +9,9 @@ namespace Net8AOTApp
     {
         private readonly ILogger _logger;
 
-        public Function1(ILoggerFactory loggerFactory)
+        public Function1(ILogger<Function1> logger)
         {
-            _logger = loggerFactory.CreateLogger<Function1>();
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         [Function("Function1")]

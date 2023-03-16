@@ -14,7 +14,7 @@ namespace Microsoft.Azure.Functions.Worker
     internal sealed class WorkerInformation
     {
         private static readonly Assembly _thisAssembly = typeof(WorkerInformation).Assembly;
-        private static readonly FileVersionInfo _fileVersionInfo = FileVersionInfo.GetVersionInfo(_thisAssembly.Location);
+       // private static readonly FileVersionInfo _fileVersionInfo = FileVersionInfo.GetVersionInfo(_thisAssembly.Location);
 
         private string? _workerVersion = "2.0.0-preview1";
 
