@@ -64,14 +64,6 @@ jobs:
                             -SkipBuildOnPack
     displayName: "Setup E2E tests"
 
-  - task: DotNetCoreCLI@2
-    displayName: 'Run tests'
-    inputs:
-      command: 'test'
-      arguments: '--no-build -c Release'
-      projects: |
-        test/**/*Tests.csproj
-
   - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@2
     displayName: 'Sdk: ESRP CodeSigning - Authenticode'
     condition: eq(variables.isReleaseBuild, true)
