@@ -100,16 +100,12 @@ void AzureFunctionsRpc::NativeHostMessageHandler::HandleMessage(ByteBuffer *rece
                 auto uPtrBb = funcgrpc::SerializeToByteBuffer(&streamingMsg);
                 auto byteBuffer = uPtrBb.get();
                 
-                FUNC_LOG_INFO("Going to wait for cv_workerLoaded.");
+                FUNC_LOG_INFO("Going to wait for cv_workerLoaded notification.");
                 std::unique_lock lk(application_->m_mtx);
                 application_->cv_workerLoaded.wait(lk, [this] { return application_->hasWorkerLoaded; });
-                //application_->cv_workerLoaded.wait()
                 FUNC_LOG_INFO("cv_workerLoaded notified. Forwarding Env reload req.");
 
                 funcgrpc::MessageChannel::GetInstance().GetInboundChannel().push(*receivedMessageBb);
-
-                //FUNC_LOG_DEBUG("Pushing response to outbound channel.contentCase: {}", streamingMsg.content_case());
-                //funcgrpc::MessageChannel::GetInstance().GetOutboundChannel().push(*byteBuffer);
                 specializationRequestReceived = true;
             }
             catch (const std::exception &ex)
