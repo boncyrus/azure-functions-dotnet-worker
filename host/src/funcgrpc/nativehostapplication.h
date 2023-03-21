@@ -42,6 +42,9 @@ class NativeHostApplication
         return s_Application;
     }
 
+    bool hasWorkerLoaded = false;
+    std::condition_variable cv_workerLoaded;
+    std::mutex m_mtx;
   private:
     static NativeHostApplication *s_Application;
 
