@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <PublishAot>true</PublishAot>
     <AzureFunctionsVersion>v4</AzureFunctionsVersion>
     <OutputType>Exe</OutputType>
@@ -9,13 +9,10 @@
     <FunctionsEnableWorkerIndexing>True</FunctionsEnableWorkerIndexing>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="2.0.0-preview2-local" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="2.0.0-preview2-20230317.4" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http" Version="3.0.13" />
-    <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="2.0.0-preview1-local" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="2.0.0-preview1-20230317.4" />
   </ItemGroup>
-  <!--<ItemGroup>
-    <ProjectReference Include="..\..\src\DotNetWorker\DotNetWorker.csproj" />
-  </ItemGroup>-->
   <ItemGroup>
     <None Update="host.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
