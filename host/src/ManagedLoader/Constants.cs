@@ -7,5 +7,16 @@ namespace Microsoft.Azure.Functions.Worker.ManagedLoader
     {
         public const string PreJitFolderName = "PreJIT";
         public const string JitTraceFileName = "coldstart.jittrace";
+        public const string OverridableAssemblyListFileName = "overridable-assemblies.txt";
+    }
+
+    public static class AppDomainProperties
+    {
+        public const string TrustedPlatformAssemblies = "TRUSTED_PLATFORM_ASSEMBLIES";
+    }
+
+    public static class EnvironmentVariables
+    {
+        public const string WorkerRuntimeVersion = "FUNCTIONS_WORKER_RUNTIME_VERSION";
     }
 }

@@ -1,0 +1,1 @@
+﻿C:\Program Files\dotnet\shared\Microsoft.NETCore.App\7.0.0\System.Diagnostics.DiagnosticSource.dll;

@@ -15,10 +15,14 @@
   </ItemGroup>
   <ItemGroup>
     <None Remove="PreJIT\net6.0\coldstart.jittrace" />
+    <None Remove="PreJIT\net6.0\overridable-assemblies.txt" />
     <None Remove="PreJIT\net7.0\coldstart.jittrace" />
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="PreJIT\net6.0\overridable-assemblies.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="PreJIT\net7.0\coldstart.jittrace">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

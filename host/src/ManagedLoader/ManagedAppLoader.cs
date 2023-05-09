@@ -7,7 +7,6 @@ using System.Text;
 using FunctionsNetHost.ManagedLoader;
 using FunctionsNetHost.ManagedLoader.NativeHostIntegration;
 using System.Reflection;
-using System.Diagnostics;
 using System.Runtime.Loader;
 
 namespace Microsoft.Azure.Functions.Worker.ManagedLoader
@@ -33,6 +32,9 @@ namespace Microsoft.Azure.Functions.Worker.ManagedLoader
             AppLoaderNativeMethods.RegisterAppLoaderCallbacks(_application, &HandleAppLoaderRequest, (IntPtr)_gcHandle);
 
             var appTargetFramework = GetApplicationTargetFramework();
+
+            // ExcludeOverdidableAssemblies(appTargetFramework);
+
             PreJitPrepare(appTargetFramework);
 
             // We want this process to not exit.
@@ -70,7 +72,6 @@ namespace Microsoft.Azure.Functions.Worker.ManagedLoader
             // Native host calls this method during specialization. 
             var span = new ReadOnlySpan<byte>(*nativeMessage, nativeMessageSize);
             var workerAssemblyPath = Encoding.UTF8.GetString(span);
-            //Logger.Log($"~~~ HandleAppLoaderRequest. Worker assembly path: {workerAssemblyPath} ~~~");
 
             _ = Task.Run(() => LoadWorker(workerAssemblyPath));
 
@@ -109,17 +110,57 @@ namespace Microsoft.Azure.Functions.Worker.ManagedLoader
             Environment.Exit(exitCode);
         }
 
+        private static void ExcludeOverdidableAssemblies(string targetFramework)
+        {
+            var assemblyLocalPath = Path.GetDirectoryName(new Uri(typeof(ManagedAppLoader).Assembly.Location).LocalPath);
+            var filePath = Path.Combine(assemblyLocalPath!, Constants.PreJitFolderName, targetFramework, Constants.OverridableAssemblyListFileName);
+            Logger.Log($"Overridable assembly list file path:{filePath}");
+            if (!File.Exists(filePath))
+            {
+                return;
+            }
+
+            string assemblies = File.ReadAllText(filePath);
+            var excludeEntries = assemblies.Split(';', StringSplitOptions.RemoveEmptyEntries);
+            Logger.Log($"Overridable assembly count:{excludeEntries.Length}");
+
+            if (!excludeEntries.Any())
+            {
+                return;
+            }
+
+            var trustedPlatformAssembliesData = AppContext.GetData(AppDomainProperties.TrustedPlatformAssemblies);
+            if (trustedPlatformAssembliesData is string trustedAssemblyListStr)
+            {
+                var trustedAssembliesArray = trustedAssemblyListStr.Split(';', StringSplitOptions.RemoveEmptyEntries);
+                var resultArray = trustedAssembliesArray.Except(excludeEntries).ToArray();
+
+                var newListString = string.Join(";", resultArray);
+                // AppContext.SetData us available from net7.0 onwards.
+                AppDomain.CurrentDomain.SetData(AppDomainProperties.TrustedPlatformAssemblies, newListString);
+
+                var updatedTrustedPlatformAssembliesData = AppContext.GetData(AppDomainProperties.TrustedPlatformAssemblies) as string;
+                var updatedTpaCount = updatedTrustedPlatformAssembliesData!.Split(';', StringSplitOptions.RemoveEmptyEntries).Length;
+                Logger.Log($"Original TPA count:{trustedAssembliesArray.Length}.Updated TPA count after removing items present in the overridable assembly list file:{updatedTpaCount}");
+            }
+        }
+
         /// <summary>
         /// Gets the Target framework value of the customer function app.
         /// </summary>
         /// <returns></returns>
         private static string GetApplicationTargetFramework()
         {
-            // TO DO : Read from what managed code is passing.
-            // May be read from AppContext.GetData or Environment variable or read from cmdline args?
-            // var applicationTfm = AppContext.GetData("AZURE_FUNCTIONS_ISOLATED_APP_TFM");
+            var workerRuntimeVersion = Environment.GetEnvironmentVariable(EnvironmentVariables.WorkerRuntimeVersion);
 
-            return "net6.0";
+            if (workerRuntimeVersion is null)
+            {
+                throw new InvalidOperationException($"Environment variable {EnvironmentVariables.WorkerRuntimeVersion} value is null.");
+            }
+
+            Logger.Log($"{EnvironmentVariables.WorkerRuntimeVersion} environment variable value:{workerRuntimeVersion}");
+
+            return $"net{workerRuntimeVersion}";
         }
     }
 }
