@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Azure.Messaging.ServiceBus;
 using Azure.Storage.Blobs;
 using Microsoft.Azure.Functions.Tests;
 using Microsoft.Azure.Functions.Worker;
@@ -1029,6 +1030,16 @@ namespace Microsoft.Azure.Functions.SdkTests
             public object BlobStringToBlobPocoArray(
                 [BlobTrigger("container2/%file%")] string blob,
                 [BlobInput("container2", IsBatched = true)] Poco[] blobinput)
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        private class ServiceBusSDKBindings
+        {
+            [Function("ServiceBusTriggerFunction")]
+            public object ServiceBusFunction(
+                [ServiceBusTrigger("queue")] ServiceBusReceivedMessage message)
             {
                 throw new NotImplementedException();
             }
