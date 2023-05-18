@@ -22,11 +22,6 @@ namespace Microsoft.Azure.Functions.Worker
             }
 
             applicationBuilder.Services.AddAzureClientsCore(); // Adds AzureComponentFactory
-
-            applicationBuilder.Services.Configure<WorkerOptions>((workerOption) =>
-            {
-                workerOption.InputConverters.RegisterAt<ServiceBusReceivedMessageConverter>(0);
-            });
         }
     }
 }
