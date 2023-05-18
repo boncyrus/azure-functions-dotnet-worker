@@ -2,7 +2,6 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System.Threading.Channels;
-using Google.Protobuf;
 using Grpc.Core;
 using Grpc.Net.Client;
 using Microsoft.Azure.Functions.Worker.Grpc.Messages;
@@ -10,13 +9,13 @@ using static Microsoft.Azure.Functions.Worker.Grpc.Messages.FunctionRpc;
 
 namespace FunctionsNetHost.Grpc
 {
-    internal sealed class GrpcClient
+    internal class GrpcClient
     {
         private readonly Channel<StreamingMessage> _outgoingMessageChannel;
-        private readonly IncomingGrpcMessageHandler _messageHandler;
+        private readonly IncomingMessageHandler _processor;
         private readonly GrpcWorkerStartupOptions _grpcWorkerStartupOptions;
 
-        internal GrpcClient(GrpcWorkerStartupOptions grpcWorkerStartupOptions, AppLoader appLoader)
+        public GrpcClient(GrpcWorkerStartupOptions grpcWorkerStartupOptions)
         {
             _grpcWorkerStartupOptions = grpcWorkerStartupOptions;
             var channelOptions = new UnboundedChannelOptions
@@ -28,38 +27,40 @@ namespace FunctionsNetHost.Grpc
 
             _outgoingMessageChannel = Channel.CreateUnbounded<StreamingMessage>(channelOptions);
 
-            _messageHandler = new IncomingGrpcMessageHandler(appLoader);
+            _processor = new IncomingMessageHandler(_outgoingMessageChannel);
         }
 
-        internal async Task InitAsync()
+        public async Task InitAsync()
         {
             var endpoint = $"http://{_grpcWorkerStartupOptions.Host}:{_grpcWorkerStartupOptions.Port}";
-            Logger.LogDebug($"Grpc service endpoint:{endpoint}");
+            Logger.Log($"Grpc server endpoint:{endpoint}");
 
-            var functionRpcClient = CreateFunctionRpcClient(endpoint);
-            var eventStream = functionRpcClient.EventStream();
+            var client = CreateFunctionRpcClient(endpoint);
+
+            var eventStream = client.EventStream(cancellationToken: CancellationToken.None);
 
             await SendStartStreamMessageAsync(eventStream.RequestStream);
 
             var readerTask = StartReaderAsync(eventStream.ResponseStream);
             var writerTask = StartWriterAsync(eventStream.RequestStream);
-            _ = StartInboundMessageForwarding();
-            _ = StartOutboundMessageForwarding();
+            var inboundForwardTask = StartInboundMessageForwarding();
 
-            await Task.WhenAll(readerTask, writerTask);
+            await Task.WhenAll(readerTask, writerTask, inboundForwardTask);
+
         }
 
         private async Task StartReaderAsync(IAsyncStreamReader<StreamingMessage> responseStream)
         {
             while (await responseStream.MoveNext())
             {
-                await _messageHandler.ProcessMessageAsync(responseStream.Current);
+                await _processor.ProcessMessageAsync(responseStream.Current);
             }
         }
         private async Task StartWriterAsync(IClientStreamWriter<StreamingMessage> requestStream)
         {
             await foreach (var rpcWriteMsg in _outgoingMessageChannel.Reader.ReadAllAsync())
             {
+                Logger.Log("Outgoing message : " + rpcWriteMsg.ContentCase);
                 await requestStream.WriteAsync(rpcWriteMsg);
             }
         }
@@ -101,32 +102,17 @@ namespace FunctionsNetHost.Grpc
         /// </summary>
         private async Task StartInboundMessageForwarding()
         {
-            await foreach (var inboundMessage in MessageChannel.Instance.InboundChannel.Reader.ReadAllAsync())
+            await foreach (var inboundMessage in InboundMessageChannel.Instance.InboundChannel.Reader.ReadAllAsync())
             {
-                await HandleIncomingMessage(inboundMessage);
+                Logger.Log($"Inbound message to customer payload: {inboundMessage.ContentCase}");
+
+                await SendToInteropLayer(inboundMessage);
             }
         }
 
-        /// <summary>
-        /// Listens to messages in the inbound message channel and forward them the customer payload via interop layer.
-        /// </summary>
-        private async Task StartOutboundMessageForwarding()
+        private Task SendToInteropLayer(StreamingMessage inboundMessage)
         {
-            await foreach (var outboundMessage in MessageChannel.Instance.OutboundChannel.Reader.ReadAllAsync())
-            {
-                await _outgoingMessageChannel.Writer.WriteAsync(outboundMessage);
-            }
-        }
-
-        private static Task HandleIncomingMessage(StreamingMessage inboundMessage)
-        {
-            // Queue the work to another thread.
-            Task.Run(() =>
-            {
-                byte[] inboundMessageBytes = inboundMessage.ToByteArray();
-                NativeHostApplication.Instance.HandleInboundMessage(inboundMessageBytes, inboundMessageBytes.Length);
-            });
-            
+            // TO DO: Send to interop layer in a new Task.
             return Task.CompletedTask;
         }
     }

@@ -5,13 +5,8 @@ using System.Text.Json.Nodes;
 
 namespace FunctionsNetHost.Grpc
 {
-    internal static class PathUtils
+    internal class PathUtils
     {
-        /// <summary>
-        /// Gets the absolute path to worker application executable.
-        /// Builds the path by reading the worker.config.json
-        /// </summary>
-        /// <param name="applicationDirectory">The FunctionAppDirectory value from environment reload request.</param>
         internal static string GetApplicationExePath(string applicationDirectory)
         {
             var workerConfigPath = Path.Combine(applicationDirectory, "worker.config.json");
@@ -21,20 +16,12 @@ namespace FunctionsNetHost.Grpc
                 throw new FileNotFoundException($"worker.config.json file not found", fileName: workerConfigPath);
             }
 
-            if (Logger.IsDebugLogEnabled)
-            {
-                Logger.LogDebug($"workerConfigPath:{workerConfigPath}");
-            }
+            Logger.Log($"workerConfigPath:{workerConfigPath}");
 
             var jsonString = File.ReadAllText(workerConfigPath);
             var workerConfigJsonNode = JsonNode.Parse(jsonString)!;
-            var executableName = workerConfigJsonNode["description"]?["defaultWorkerPath"]?.ToString();
-            
-            if (executableName == null)
-            {
-                throw new InvalidOperationException("Invalid worker configuration.");
-            }
-            
+            var executableName = workerConfigJsonNode["description"]!["defaultWorkerPath"]!.ToString();
+
             return Path.Combine(applicationDirectory, executableName);
         }
     }
