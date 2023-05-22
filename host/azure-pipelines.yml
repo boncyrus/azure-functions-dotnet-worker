@@ -15,27 +15,37 @@ stages:
           vmImage: 'ubuntu-latest'
         steps:
           - task: DotnetCoreCLI@2
-            displayName: 'Publish Linux'
+            displayName: 'Dotnet Publish'
             inputs:
               command: 'publish'
               publishWebProjects: false
               zipAfterPublish: false
-              arguments: '-c Release -r linux-x64 -o $(Build.SourcesDirectory)/host/build/linux'
+              arguments: '-c Release -r linux-x64 -o $(Build.SourcesDirectory)/output/linux'
               workingDirectory: $(Build.SourcesDirectory)/host/src/FunctionsNetHost
 
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: '$(Build.ArtifactStagingDirectory)/output/linux'
+              artifact: 'output'
+              
       - job: BuildAndPublishWindows
         displayName: 'Build and Publish on Windows'
         pool:
           vmImage: 'windows-latest'
         steps:
           - task: DotnetCoreCLI@2
-            displayName: 'Publish Win'
+            displayName: 'Dotnet Publish'
             inputs:
               command: 'publish'
               publishWebProjects: false
               zipAfterPublish: false
-              arguments: '-c Release -r win-x64 -o $(Build.SourcesDirectory)/host/build/windows'
+              arguments: '-c Release -r win-x64 -o $(Build.ArtifactStagingDirectory)/output/windows'
               workingDirectory: $(Build.SourcesDirectory)/host/src/FunctionsNetHost
+          
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: '$(Build.ArtifactStagingDirectory)/output/linux'
+              artifact: 'output'
 
   - stage: ConsolidateArtifacts
     displayName: 'Consolidate Artifacts'
@@ -46,15 +56,17 @@ stages:
         pool:
           vmImage: 'ubuntu-latest'
         steps:
-          - task: NuGetCommand@2
-            displayName: "Nuget pack"
+          - task: DownloadPipelineArtifact@2
             inputs:
-              command: "pack"
-              packagesToPack: "$(Build.SourcesDirectory)/host/tools/build/Microsoft.Azure.Functions.DotnetIsolatedNativeHost.nuspec"
-              versioningScheme: "off"
-              packDestination: "$(Build.ArtifactStagingDirectory)/host/build/nuget"
-              basePath: "$(Build.SourcesDirectory)/host/tools/build"
+              artifactName: 'output'
+              path: '$(Build.ArtifactStagingDirectory)/output'
 
-          # Publish artifacts.
-          - publish: $(Build.ArtifactStagingDirectory)/host/build/nuget
-            artifact: drop
+          - task: CopyFiles@2
+            inputs:
+              SourceFolder: '$(Build.ArtifactStagingDirectory)/output'
+              TargetFolder: '$(Build.ArtifactStagingDirectory)/consolidated-output'
+
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: '$(Build.ArtifactStagingDirectory)/consolidated-output'
+              artifact: 'consolidated-output'
