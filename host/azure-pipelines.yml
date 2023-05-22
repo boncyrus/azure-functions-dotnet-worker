@@ -2,44 +2,59 @@ trigger:
   branches:
     include:
       - main
-      - release/*
-  paths:
-    include:
-      - host/src/
-pr:
-  branches:
-    include:
-      - main
-      - release/*
   paths:
     include:
       - host/src/
 
-pool:
-  vmImage: windows-latest
+stages:
+  - stage: BuildAndPublish
+    jobs:
+      - job: BuildAndPublishLinux
+        displayName: 'Build and Publish on Linux'
+        pool:
+          vmImage: 'ubuntu-latest'
+        steps:
+          - task: DotnetCoreCLI@2
+            displayName: 'Publish Linux'
+            inputs:
+              command: 'publish'
+              publishWebProjects: false
+              zipAfterPublish: false
+              arguments: '-c Release -r linux-x64 -o $(Build.SourcesDirectory)/host/build/linux'
+              workingDirectory: $(Build.SourcesDirectory)/host/src/FunctionsNetHost
 
-steps:
-  # Remember to add this task to allow vcpkg to upload archives via NuGet
-  - task: NuGetAuthenticate@1
+      - job: BuildAndPublishWindows
+        displayName: 'Build and Publish on Windows'
+        pool:
+          vmImage: 'windows-latest'
+        steps:
+          - task: DotnetCoreCLI@2
+            displayName: 'Publish Win'
+            inputs:
+              command: 'publish'
+              publishWebProjects: false
+              zipAfterPublish: false
+              arguments: '-c Release -r win-x64 -o $(Build.SourcesDirectory)/host/build/windows'
+              workingDirectory: $(Build.SourcesDirectory)/host/src/FunctionsNetHost
 
-  - task: DotNetCoreCLI@2
-    displayName: 'Publish win-x64 FunctionsNetHost'
-    inputs:
-      command: 'publish'
-      publishWebProjects: false
-      zipAfterPublish: false
-      arguments: '-c Release -r win-x64 -o $(Build.SourcesDirectory)/host/build/win-x64/FunctionsNetHost'
-      workingDirectory: $(Build.SourcesDirectory)/host/src/FunctionsNetHost
+  - stage: ConsolidateArtifacts
+    displayName: 'Consolidate Artifacts'
+    dependsOn: BuildAndPublish
+    jobs:
+      - job: ConsolidateArtifacts
+        displayName: 'Consolidate Artifacts'
+        pool:
+          vmImage: 'ubuntu-latest'
+        steps:
+          - task: NuGetCommand@2
+            displayName: "Nuget pack"
+            inputs:
+              command: "pack"
+              packagesToPack: "$(Build.SourcesDirectory)/host/tools/build/Microsoft.Azure.Functions.DotnetIsolatedNativeHost.nuspec"
+              versioningScheme: "off"
+              packDestination: "$(Build.ArtifactStagingDirectory)/host/build/nuget"
+              basePath: "$(Build.SourcesDirectory)/host/tools/build"
 
-  - task: NuGetCommand@2
-    displayName: "Nuget pack"
-    inputs:
-      command: "pack"
-      packagesToPack: "$(Build.SourcesDirectory)/host/tools/build/Microsoft.Azure.Functions.DotnetIsolatedNativeHost.nuspec"
-      versioningScheme: "off"
-      packDestination: "$(Build.ArtifactStagingDirectory)/host/build/nuget"
-      basePath: "$(Build.SourcesDirectory)/host/tools/build"
-
-  # Publish artifacts.
-  - publish: $(Build.ArtifactStagingDirectory)/host/build/nuget
-    artifact: drop
+          # Publish artifacts.
+          - publish: $(Build.ArtifactStagingDirectory)/host/build/nuget
+            artifact: drop
