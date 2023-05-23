@@ -8,9 +8,10 @@ trigger:
 
 stages:
   - stage: BuildAndPublish
+    displayName: "Publish (Windows & Linux)"
     jobs:
       - job: BuildAndPublishLinux
-        displayName: 'Build and Publish on Linux'
+        displayName: 'Publish on Linux'
         pool:
           vmImage: 'ubuntu-latest'
         steps:
@@ -33,7 +34,7 @@ stages:
               artifact: 'linux_publish_output'
               
       - job: BuildAndPublishWindows
-        displayName: 'Build and Publish on Windows'
+        displayName: 'Publish on Windows'
         pool:
           vmImage: 'windows-latest'
         steps:
@@ -87,19 +88,12 @@ stages:
           - task: CopyFiles@2
             inputs:
               SourceFolder: '$(Build.ArtifactStagingDirectory)/linux_output'
-              TargetFolder: '$(Build.ArtifactStagingDirectory)/dist/linux'
+              TargetFolder: '$(Build.ArtifactStagingDirectory)/dist/functionsnethost/linux'
 
           - task: CopyFiles@2
             inputs:
               SourceFolder: '$(Build.ArtifactStagingDirectory)/windows_output'
               TargetFolder: '$(Build.ArtifactStagingDirectory)/dist/functionsnethost/windows'
-
-          - task: PowerShell@2
-            inputs:
-              targetType: 'inline'
-              script: |
-                $dirPath = "$(Build.ArtifactStagingDirectory)/dist/functionsnethost"
-                Get-ChildItem -Path $dirPath
 
           - task: PublishPipelineArtifact@1
             inputs:
