@@ -85,6 +85,13 @@ stages:
               SourceFolder: '$(Build.ArtifactStagingDirectory)/output'
               TargetFolder: '$(Build.ArtifactStagingDirectory)/windows_filtered'
 
+          - task: PowerShell@2
+            inputs:
+              targetType: 'inline'
+              script: |
+                $dirPath = "$(Build.ArtifactStagingDirectory)/windows_filtered"
+                Get-ChildItem -Path $dirPath
+
           - task: PublishPipelineArtifact@1
             inputs:
               targetPath: '$(Build.ArtifactStagingDirectory)/consolidated-output'
