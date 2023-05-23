@@ -14,7 +14,7 @@ namespace FunctionsNetHost
                 return _hostFxrPath;
             }
 #if LINUX
-            hostFxrPath = GetUnixHostFxrPath();
+            _hostFxrPath = GetUnixHostFxrPath();
 #else
             _hostFxrPath = FunctionsNetHost.PathResolver.GetWindowsHostFxrPath();
 #endif
