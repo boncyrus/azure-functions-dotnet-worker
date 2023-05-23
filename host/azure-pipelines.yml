@@ -68,8 +68,12 @@ stages:
       - job: ConsolidateArtifacts
         displayName: 'Consolidate Artifacts'
         pool:
-          vmImage: 'ubuntu-latest'
+          vmImage: 'windows-latest'
         steps:
+          - task: UseDotNet@2
+            inputs:
+              version: '7.x'
+
           - task: DownloadPipelineArtifact@2
             inputs:
               artifactName: 'output'
@@ -92,8 +96,16 @@ stages:
                 $dirPath = "$(Build.ArtifactStagingDirectory)/windows_filtered"
                 Get-ChildItem -Path $dirPath
 
-          - task: PublishPipelineArtifact@1
-            inputs:
-              targetPath: '$(Build.ArtifactStagingDirectory)/consolidated-output'
-              artifact: 'consolidated_output'
-              publishLocation: 'pipeline'
+          - script: dir
+            workingDirectory: $(Agent.BuildDirectory)
+            displayName: List contents BuildDirectory
+          
+          - script: dir
+            workingDirectory: $(Agent.ArtifactStagingDirectory)
+            displayName: List contents of ArtifactStagingDirectory
+
+          # - task: PublishPipelineArtifact@1
+          #   inputs:
+          #     targetPath: '$(Build.ArtifactStagingDirectory)/consolidated-output'
+          #     artifact: 'consolidated_output'
+          #     publishLocation: 'pipeline'
