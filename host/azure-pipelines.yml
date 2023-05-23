@@ -87,25 +87,22 @@ stages:
           - task: CopyFiles@2
             inputs:
               SourceFolder: '$(Build.ArtifactStagingDirectory)/output'
-              TargetFolder: '$(Build.ArtifactStagingDirectory)/windows_filtered'
+              TargetFolder: '$(Build.ArtifactStagingDirectory)/dist/linux'
+
+          - task: CopyFiles@2
+            inputs:
+              SourceFolder: '$(Build.ArtifactStagingDirectory)/output_filtered'
+              TargetFolder: '$(Build.ArtifactStagingDirectory)/dist/windows'
 
           - task: PowerShell@2
             inputs:
               targetType: 'inline'
               script: |
-                $dirPath = "$(Build.ArtifactStagingDirectory)/windows_filtered"
+                $dirPath = "$(Build.ArtifactStagingDirectory)/dist"
                 Get-ChildItem -Path $dirPath
 
-          - script: dir
-            workingDirectory: $(Agent.BuildDirectory)
-            displayName: List contents BuildDirectory
-          
-          - script: dir
-            workingDirectory: $(Agent.ArtifactStagingDirectory)
-            displayName: List contents of ArtifactStagingDirectory
-
-          # - task: PublishPipelineArtifact@1
-          #   inputs:
-          #     targetPath: '$(Build.ArtifactStagingDirectory)/consolidated-output'
-          #     artifact: 'consolidated_output'
-          #     publishLocation: 'pipeline'
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: '$(Build.ArtifactStagingDirectory)/dist'
+              artifact: 'consolidated_output'
+              publishLocation: 'pipeline'
