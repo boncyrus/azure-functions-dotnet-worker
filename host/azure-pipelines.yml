@@ -20,7 +20,7 @@ stages:
               version: '7.x'
 
           - script: |
-            sudo apt-get install clang zlib1g-dev
+            apt-get install clang zlib1g-dev
             displayName: "Install compiler toolchain"
 
           - task: DotnetCoreCLI@2
