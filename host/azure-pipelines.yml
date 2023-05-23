@@ -21,7 +21,7 @@ stages:
 
           - script: |
             apt-get install clang zlib1g-dev
-            displayName: "Install compiler toolchain"
+          displayName: "Install compiler toolchain"
 
           - task: DotnetCoreCLI@2
             displayName: 'Dotnet Publish'
