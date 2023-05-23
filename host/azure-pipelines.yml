@@ -19,7 +19,7 @@ stages:
             inputs:
               version: '7.x'
 
-          - script: 
+          - script: |
             sudo apt-get install clang zlib1g-dev
             displayName: "Install compiler toolchain"
 
