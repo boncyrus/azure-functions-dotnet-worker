@@ -88,15 +88,23 @@ stages:
           - task: CopyFiles@2
             inputs:
               SourceFolder: '$(Build.ArtifactStagingDirectory)/linux_output'
-              TargetFolder: '$(Build.ArtifactStagingDirectory)/dist/functionsnethost/linux'
+              TargetFolder: '$(Build.SourcesDirectory)/host/dist/linux'
 
           - task: CopyFiles@2
             inputs:
               SourceFolder: '$(Build.ArtifactStagingDirectory)/windows_output'
-              TargetFolder: '$(Build.ArtifactStagingDirectory)/dist/functionsnethost/windows'
+              TargetFolder: '$(Build.SourcesDirectory)/host/dist/windows'
 
-          - task: PublishPipelineArtifact@1
+          - task: NuGetCommand@2
+            displayName: "Nuget pack"
             inputs:
-              targetPath: '$(Build.ArtifactStagingDirectory)/dist/functionsnethost'
-              artifact: 'consolidated_output'
-              publishLocation: 'pipeline'
+              command: "pack"
+              packagesToPack: "$(Build.SourcesDirectory)/host/tools/build/Microsoft.Azure.Functions.DotnetIsolatedNativeHost.nuspec"
+              versioningScheme: "off"
+              packDestination: "$(Build.ArtifactStagingDirectory)/host/dist/nuget"
+              basePath: "$(Build.SourcesDirectory)/host/tools/build"
+
+          # Publish artifacts.
+          - publish: $(Build.ArtifactStagingDirectory)/host/dist/nuget
+            artifact: drop
+
