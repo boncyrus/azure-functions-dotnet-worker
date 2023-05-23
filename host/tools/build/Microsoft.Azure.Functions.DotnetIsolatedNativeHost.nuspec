@@ -18,7 +18,7 @@
   </metadata>
   <files>
     <file src="..\..\dist\windows\*" target="contentFiles/any/any/workers/dotnet-isolated/bin" />
-    <file src="..\..\dist\linux\*" target="contentFiles/any/any/workers/dotnet-isolated/bin/lin" />
+    <file src="..\..\dist\linux\*" target="contentFiles/any/any/workers/dotnet-isolated/bin" />
     <file src="worker.config.json" target="contentFiles/any/any/workers/dotnet-isolated" />
   </files>
 </package>
