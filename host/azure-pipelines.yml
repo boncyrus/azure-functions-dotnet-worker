@@ -19,11 +19,9 @@ stages:
             inputs:
               version: '7.x'
 
-          - script:
-              name: Run sudo command
-              bash: |
-                sudo apt-get install clang zlib1g-dev
-
+          - script: |
+              sudo apt-get install clang zlib1g-dev
+              
           - task: DotnetCoreCLI@2
             displayName: 'Dotnet Publish'
             inputs:
