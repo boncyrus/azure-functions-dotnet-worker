@@ -30,7 +30,7 @@ stages:
           - task: PublishPipelineArtifact@1
             inputs:
               targetPath: '$(Build.ArtifactStagingDirectory)/output/linux'
-              artifact: 'output'
+              artifact: 'linux_publish_output'
               
       - job: BuildAndPublishWindows
         displayName: 'Build and Publish on Windows'
@@ -59,7 +59,7 @@ stages:
           - task: PublishPipelineArtifact@1
             inputs:
               targetPath: '$(Build.ArtifactStagingDirectory)/output/windows_filtered'
-              artifact: 'output_filtered'
+              artifact: 'windows_publish_output'
 
   - stage: ConsolidateArtifacts
     displayName: 'Consolidate Artifacts'
@@ -76,33 +76,33 @@ stages:
 
           - task: DownloadPipelineArtifact@2
             inputs:
-              artifactName: 'output'
-              path: '$(Build.ArtifactStagingDirectory)/output'
+              artifactName: 'linux_publish_output'
+              path: '$(Build.ArtifactStagingDirectory)/linux_output'
           
           - task: DownloadPipelineArtifact@2
             inputs:
-              artifactName: 'output_filtered'
-              path: '$(Build.ArtifactStagingDirectory)/output_filtered'
+              artifactName: 'windows_publish_output'
+              path: '$(Build.ArtifactStagingDirectory)/windows_output'
 
           - task: CopyFiles@2
             inputs:
-              SourceFolder: '$(Build.ArtifactStagingDirectory)/output'
+              SourceFolder: '$(Build.ArtifactStagingDirectory)/linux_output'
               TargetFolder: '$(Build.ArtifactStagingDirectory)/dist/linux'
 
           - task: CopyFiles@2
             inputs:
-              SourceFolder: '$(Build.ArtifactStagingDirectory)/output_filtered'
-              TargetFolder: '$(Build.ArtifactStagingDirectory)/dist/windows'
+              SourceFolder: '$(Build.ArtifactStagingDirectory)/windows_output'
+              TargetFolder: '$(Build.ArtifactStagingDirectory)/dist/functionsnethost/windows'
 
           - task: PowerShell@2
             inputs:
               targetType: 'inline'
               script: |
-                $dirPath = "$(Build.ArtifactStagingDirectory)/dist"
+                $dirPath = "$(Build.ArtifactStagingDirectory)/dist/functionsnethost"
                 Get-ChildItem -Path $dirPath
 
           - task: PublishPipelineArtifact@1
             inputs:
-              targetPath: '$(Build.ArtifactStagingDirectory)/dist'
+              targetPath: '$(Build.ArtifactStagingDirectory)/dist/functionsnethost'
               artifact: 'consolidated_output'
               publishLocation: 'pipeline'
