@@ -79,21 +79,25 @@ stages:
               version: '7.x'
 
           - task: DownloadPipelineArtifact@2
+            displayName: 'Download Artifacts from Linux build'
             inputs:
               artifactName: 'linux_publish_output'
               path: '$(Build.ArtifactStagingDirectory)/linux_output'
           
           - task: DownloadPipelineArtifact@2
+            displayName: 'Download Artifacts from Windows build'
             inputs:
               artifactName: 'windows_publish_output'
               path: '$(Build.ArtifactStagingDirectory)/windows_output'
 
           - task: CopyFiles@2
+            displayName: 'Copy files from linux artifacts to dist dir'
             inputs:
               SourceFolder: '$(Build.ArtifactStagingDirectory)/linux_output'
               TargetFolder: '$(Build.SourcesDirectory)/host/dist/linux'
 
           - task: CopyFiles@2
+            displayName: 'Copy files from Windows artifacts to dist dir'
             inputs:
               SourceFolder: '$(Build.ArtifactStagingDirectory)/windows_output'
               TargetFolder: '$(Build.SourcesDirectory)/host/dist/windows'
@@ -110,4 +114,3 @@ stages:
           # Publish artifacts.
           - publish: $(Build.ArtifactStagingDirectory)/host/dist/nuget
             artifact: drop
-
