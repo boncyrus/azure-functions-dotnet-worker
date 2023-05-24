@@ -13,7 +13,7 @@ stages:
       - job: BuildAndPublishLinux
         displayName: 'Publish on Linux'
         pool:
-          vmImage: 'debian-10'
+          vmImage: 'ubuntu-20.04'
         steps:
           - task: UseDotNet@2
             inputs:
