@@ -13,7 +13,7 @@ stages:
       - job: BuildAndPublishLinux
         displayName: 'Publish on Linux'
         pool:
-          vmImage: 'ubuntu-latest'
+          vmImage: 'debian-10'
         steps:
           - task: UseDotNet@2
             inputs:
@@ -28,7 +28,7 @@ stages:
               command: 'publish'
               publishWebProjects: false
               zipAfterPublish: false
-              arguments: '-c Release -r debian.11-x64 -o $(Build.ArtifactStagingDirectory)/output/linux -p:FUNCTIONS_CONSTANTS=LINUX'
+              arguments: '-c Release -r debian.10-x64 -o $(Build.ArtifactStagingDirectory)/output/linux -p:FUNCTIONS_CONSTANTS=LINUX'
               workingDirectory: $(Build.SourcesDirectory)/host/src/FunctionsNetHost
 
           - task: PublishPipelineArtifact@1
