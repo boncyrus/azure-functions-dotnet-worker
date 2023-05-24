@@ -2,6 +2,15 @@ trigger:
   branches:
     include:
       - main
+      - release/*
+  paths:
+    include:
+      - host/src/
+pr:
+  branches:
+    include:
+      - main
+      - release/*
   paths:
     include:
       - host/src/
