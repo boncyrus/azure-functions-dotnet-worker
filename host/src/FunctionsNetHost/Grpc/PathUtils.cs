@@ -15,6 +15,7 @@ namespace FunctionsNetHost.Grpc
         internal static string GetApplicationExePath(string applicationDirectory)
         {
             var workerConfigPath = Path.Combine(applicationDirectory, "worker.config.json");
+            Logger.LogDebug($"workerConfigPath:{workerConfigPath}");
 
             if (!File.Exists(workerConfigPath))
             {
