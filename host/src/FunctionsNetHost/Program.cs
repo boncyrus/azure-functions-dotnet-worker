@@ -12,7 +12,7 @@ namespace FunctionsNetHost
         {
             try
             {
-                Logger.LogInfo("Starting FunctionsNetHost222");
+                Logger.LogInfo("Starting FunctionsNetHost");
                 Environment.SetEnvironmentVariable(EnvironmentSettingNames.FunctionsNetHostTrace, "1");
 
                 var workerStartupOptions = await GetStartupOptionsFromCmdLineArgs(args);
@@ -54,6 +54,8 @@ namespace FunctionsNetHost
                     workerStartupOptions.RequestId = requestId;
                 },
                 hostOption, portOption, workerOption, grpcMsgLengthOption, requestIdOption);
+
+            Logger.LogDebug($"args:{string.Join(" ", args)}");
 
             var argsWithoutExecutableName = args.Skip(1).ToArray();
             await rootCommand.InvokeAsync(argsWithoutExecutableName);
