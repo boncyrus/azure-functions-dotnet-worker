@@ -22,6 +22,7 @@ namespace Microsoft.Azure.Functions.Worker.Grpc.NativeHostIntegration
             delegate* unmanaged<byte**, int, IntPtr, IntPtr> requestCallback,
             IntPtr grpcHandler)
         {
+            Console.WriteLine("DotNetWorker.Grpc.NativeMethods.RegisterCallbacks");
             _ = register_callbacks(nativeApplication, requestCallback, grpcHandler);
         }
 
@@ -31,13 +32,13 @@ namespace Microsoft.Azure.Functions.Worker.Grpc.NativeHostIntegration
             _ = send_streaming_message(nativeApplication, bytes, bytes.Length);
         }
 
-        [DllImport(NativeWorkerDll)]
+        [DllImport(NativeWorkerDll, CharSet = CharSet.Auto)]
         private static extern int get_application_properties(out NativeHost hostData);
 
-        [DllImport(NativeWorkerDll)]
+        [DllImport(NativeWorkerDll, CharSet = CharSet.Auto)]
         private static extern int send_streaming_message(NativeSafeHandle pInProcessApplication, byte[] streamingMessage, int streamingMessageSize);
 
-        [DllImport(NativeWorkerDll)]
+        [DllImport(NativeWorkerDll, CharSet = CharSet.Auto)]
         private static extern unsafe int register_callbacks(NativeSafeHandle pInProcessApplication,
             delegate* unmanaged<byte**, int, IntPtr, IntPtr> requestCallback,
             IntPtr grpcHandler);
