@@ -16,7 +16,11 @@
   <PropertyGroup>
     <ExportsFile>$(MSBuildThisFileDirectory)exports.def</ExportsFile>
   </PropertyGroup>
-  
+
+  <ItemGroup>
+    <CustomLinkerArg Include="-Wl,--export-dynamic" />
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="Google.Protobuf" Version="3.23.0" />
     <PackageReference Include="Grpc.Net.Client" Version="2.53.0" />
@@ -30,8 +34,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Protobuf Include="..\..\..\protos\azure-functions-language-worker-protobuf\**\*.proto" ProtoRoot="..\..\..\protos\azure-functions-language-worker-protobuf\src\proto" GrpcServices="Client" Access="internal" />
+    <Protobuf Include="..\..\..\protos\azure-functions-language-worker-protobuf\**\*.proto" 
+              ProtoRoot="..\..\..\protos\azure-functions-language-worker-protobuf\src\proto" 
+              GrpcServices="Client" 
+              Access="internal" />
   </ItemGroup>
-  
 
 </Project>
