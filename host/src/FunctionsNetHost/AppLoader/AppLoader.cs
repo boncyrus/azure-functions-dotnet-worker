@@ -41,7 +41,8 @@ namespace FunctionsNetHost
         internal int RunApplication(string assemblyPath)
         {
             Logger.LogDebug($"Assembly path to run:{assemblyPath}");
-            
+            Logger.LogDebug($"File ({assemblyPath}) exists:{File.Exists(assemblyPath)}");
+
             unsafe
             {
                 var parameters = new HostFxr.hostfxr_initialize_parameters
