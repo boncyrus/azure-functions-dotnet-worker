@@ -30,6 +30,12 @@ namespace Microsoft.Azure.Functions.Worker.Definition
             // production at this time. Use FUNCTIONS_WORKER_DIRECTORY as a fallback. They are currently identical, but
             // this will change once dotnet-isolated placeholder support rolls out. Eventually we can remove this.
             string ? scriptRoot = Environment.GetEnvironmentVariable(FunctionsApplicationDirectoryKey) ?? Environment.GetEnvironmentVariable(FunctionsWorkerDirectoryKey);
+
+            // In the Linux environment ,this value is coming as “/tmp/functions\standby\wwwroot”. Our worker assembly
+            // is not present in that location. It is in “/home/site/wwwroot/”
+            // Hardcoding for our initial validation. Will remove when we fix this on the host side.
+            scriptRoot = @"/home/site/wwwroot/";
+
             if (string.IsNullOrWhiteSpace(scriptRoot))
             {
                 throw new InvalidOperationException($"The '{FunctionsApplicationDirectoryKey}' environment variable value is not defined. This is a required environment variable that is automatically set by the Azure Functions runtime.");
