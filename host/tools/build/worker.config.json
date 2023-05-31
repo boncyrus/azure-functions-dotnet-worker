@@ -18,7 +18,8 @@
       ],
       "description": {
         "defaultExecutablePath": "%FUNCTIONS_WORKER_DIRECTORY%/bin/FunctionsNetHost",
-        "defaultWorkerPath": "bin/FunctionsNetHost"
+        "defaultWorkerPath": "bin/FunctionsNetHost",
+        "workerDirectory": "/home/site/wwwroot"
       }
     }
   ]
