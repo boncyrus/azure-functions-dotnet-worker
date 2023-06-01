@@ -26,21 +26,23 @@ namespace FunctionsNetHost
             // export COREHOST_TRACE=1
 
             var hostfxrFullPath = PathResolver.GetHostFxrPath();
-            Logger.LogDebug($"hostfxrFullPath:{hostfxrFullPath}");
+            Logger.LogDebug($"hostfxr path:{hostfxrFullPath}");
 
             _hostfxrHandle = NativeLibrary.Load(hostfxrFullPath);
             if (_hostfxrHandle == IntPtr.Zero)
             {
-                Logger.LogInfo($"Failed to load hostfxr. hostfxrFullPath:{hostfxrFullPath}");
+                Logger.LogInfo($"Failed to load hostfxr. hostfxr path:{hostfxrFullPath}");
                 return;
             }
 
             Logger.LogDebug($"hostfxr library loaded successfully.");
         }
 
-        internal int RunApplication(string assemblyPath)
+        internal int RunApplication(string? assemblyPath)
         {
             Logger.LogDebug($"Assembly path to run:{assemblyPath}");
+            ArgumentNullException.ThrowIfNull(assemblyPath, nameof(assemblyPath));
+
             Logger.LogDebug($"File ({assemblyPath}) exists:{File.Exists(assemblyPath)}");
 
             unsafe
@@ -55,7 +57,7 @@ namespace FunctionsNetHost
                 if (hostContextHandle == IntPtr.Zero)
                 {
                     Logger.LogInfo(
-                        $"Failed to initialize the .NET Core runtime. assemblyPath:{assemblyPath}");
+                        $"Failed to initialize the .NET Core runtime. assembly path:{assemblyPath}");
                     return -1;
                 }
 

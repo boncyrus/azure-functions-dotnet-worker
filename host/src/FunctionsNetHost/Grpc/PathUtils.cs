@@ -12,31 +12,37 @@ namespace FunctionsNetHost.Grpc
         /// Builds the path by reading the worker.config.json
         /// </summary>
         /// <param name="applicationDirectory">The FunctionAppDirectory value from environment reload request.</param>
-        internal static string GetApplicationExePath(string applicationDirectory)
+        internal static string? GetApplicationExePath(string applicationDirectory)
         {
-            var workerConfigPath = Path.Combine(applicationDirectory, "worker.config.json");
-            Logger.LogDebug($"workerConfigPath:{workerConfigPath}");
-
-            if (!File.Exists(workerConfigPath))
+            try
             {
-                throw new FileNotFoundException($"worker.config.json file not found", fileName: workerConfigPath);
-            }
+                var workerConfigPath = Path.Combine(applicationDirectory, "worker.config.json");
 
-            if (Logger.IsDebugLogEnabled)
-            {
-                Logger.LogDebug($"workerConfigPath:{workerConfigPath}");
-            }
+                var fileExists = File.Exists(workerConfigPath);
+                Logger.LogInfo($"workerConfigPath:{workerConfigPath}. File exists:{fileExists}");
 
-            var jsonString = File.ReadAllText(workerConfigPath);
-            var workerConfigJsonNode = JsonNode.Parse(jsonString)!;
-            var executableName = workerConfigJsonNode["description"]?["defaultWorkerPath"]?.ToString();
-            
-            if (executableName == null)
-            {
-                throw new InvalidOperationException("Invalid worker configuration.");
+                if (!fileExists)
+                {
+                    throw new FileNotFoundException($"worker.config.json file not found", fileName: workerConfigPath);
+                }
+
+                var jsonString = File.ReadAllText(workerConfigPath);
+                var workerConfigJsonNode = JsonNode.Parse(jsonString)!;
+                var executableName = workerConfigJsonNode["description"]?["defaultWorkerPath"]?.ToString();
+
+                if (executableName == null)
+                {
+                    Logger.LogInfo($"Invalid worker configuration. description > defaultWorkerPath property value is null.");
+                    return null;
+                }
+
+                return Path.Combine(applicationDirectory, executableName);
             }
-            
-            return Path.Combine(applicationDirectory, executableName);
+            catch (Exception ex)
+            {
+                Logger.LogInfo($"Error in GetApplicationExePath.{ex}");
+                return null;
+            }
         }
     }
 }
