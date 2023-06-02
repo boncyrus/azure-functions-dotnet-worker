@@ -38,15 +38,15 @@ namespace FunctionsNetHost.Grpc
             switch (msg.ContentCase)
             {
                 case StreamingMessage.ContentOneofCase.WorkerInitRequest:
-                {
-                    responseMessage.WorkerInitResponse = BuildWorkerInitResponse();
-                    break;
-                }
+                    {
+                        responseMessage.WorkerInitResponse = BuildWorkerInitResponse();
+                        break;
+                    }
                 case StreamingMessage.ContentOneofCase.FunctionsMetadataRequest:
-                {
-                    responseMessage.FunctionMetadataResponse = BuildFunctionMetadataResponse();
-                    break;
-                }
+                    {
+                        responseMessage.FunctionMetadataResponse = BuildFunctionMetadataResponse();
+                        break;
+                    }
                 case StreamingMessage.ContentOneofCase.FunctionEnvironmentReloadRequest:
 
                     Logger.LogDebug("Specialization request received");
@@ -54,6 +54,7 @@ namespace FunctionsNetHost.Grpc
                     var envReloadRequest = msg.FunctionEnvironmentReloadRequest;
                     foreach (var kv in envReloadRequest.EnvironmentVariables)
                     {
+                        Logger.LogDebug($"{kv.Key}:{kv.Value}");
                         Environment.SetEnvironmentVariable(kv.Key, kv.Value);
                     }
                     Logger.LogDebug($"Set {envReloadRequest.EnvironmentVariables.Count} environment variables.");
@@ -77,8 +78,8 @@ namespace FunctionsNetHost.Grpc
                     await MessageChannel.Instance.SendInboundAsync(msg);
                     _specializationDone = true;
                     break;
-                }
-            
+            }
+
 
             await MessageChannel.Instance.SendOutboundAsync(responseMessage);
         }
@@ -86,11 +87,11 @@ namespace FunctionsNetHost.Grpc
         private static FunctionMetadataResponse BuildFunctionMetadataResponse()
         {
             var metadataResponse = new FunctionMetadataResponse
-                {
-                    UseDefaultMetadataIndexing = true,
-                    Result = new StatusResult { Status = StatusResult.Types.Status.Success }
-                };
-            
+            {
+                UseDefaultMetadataIndexing = true,
+                Result = new StatusResult { Status = StatusResult.Types.Status.Success }
+            };
+
             return metadataResponse;
         }
 
