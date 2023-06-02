@@ -12,7 +12,7 @@ namespace FunctionsNetHost
         {
             try
             {
-                Logger.LogInfo("Starting FunctionsNetHost202306011945");
+                Logger.LogInfo("Starting FunctionsNetHost202306020818");
                 Environment.SetEnvironmentVariable(EnvironmentSettingNames.FunctionsNetHostTrace, "1");
 
                 var workerStartupOptions = await GetStartupOptionsFromCmdLineArgs(args);
