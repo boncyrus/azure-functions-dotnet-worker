@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
@@ -24,7 +25,15 @@ namespace Microsoft.Azure.Functions.Worker.Definition
             Name = loadRequest.Metadata.Name;
             Id = loadRequest.FunctionId;
 
-            Console.WriteLine($"LanguageWorkerConsoleLog FUNCTIONS_WORKER_DIRECTORY env variable value:{Environment.GetEnvironmentVariable(FunctionsApplicationDirectoryKey)}, FUNCTIONS_APPLICATION_DIRECTORY env variable value:{Environment.GetEnvironmentVariable(FunctionsWorkerDirectoryKey)}");
+            Console.WriteLine($"LanguageWorkerConsoleLog FUNCTIONS_APPLICATION_DIRECTORY env variable value:{Environment.GetEnvironmentVariable(FunctionsApplicationDirectoryKey)}, FUNCTIONS_WORKER_DIRECTORY env variable value:{Environment.GetEnvironmentVariable(FunctionsWorkerDirectoryKey)}");
+
+            var allEnvVariables = Environment.GetEnvironmentVariables();
+            Console.WriteLine($"LanguageWorkerConsoleLog [Worker.GrpcFunctionDefinition] EnvironmentVariables count:{allEnvVariables.Count}");
+
+            foreach (DictionaryEntry variable in allEnvVariables )
+            {
+                Console.WriteLine($"LanguageWorkerConsoleLog [Worker.GrpcFunctionDefinition] {variable.Key}:{variable.Value}");
+            }
 
             // The long-term solution is FUNCTIONS_APPLICATION_DIRECTORY, but that change has not rolled out to 
             // production at this time. Use FUNCTIONS_WORKER_DIRECTORY as a fallback. They are currently identical, but
@@ -34,7 +43,7 @@ namespace Microsoft.Azure.Functions.Worker.Definition
             // In the Linux environment ,this value is coming as “/tmp/functions\standby\wwwroot”. Our worker assembly
             // is not present in that location. It is in “/home/site/wwwroot/”
             // Hardcoding for our initial validation. Will remove when we fix this on the host side.
-            scriptRoot = @"/home/site/wwwroot/";
+            //scriptRoot = @"/home/site/wwwroot/";
 
             if (string.IsNullOrWhiteSpace(scriptRoot))
             {
@@ -48,7 +57,7 @@ namespace Microsoft.Azure.Functions.Worker.Definition
 
             string scriptFile = Path.Combine(scriptRoot, loadRequest.Metadata.ScriptFile);
             PathToAssembly = Path.GetFullPath(scriptFile);
-            Console.WriteLine($"LanguageWorkerConsoleLog PathToAssemblye:{PathToAssembly}");
+            Console.WriteLine($"LanguageWorkerConsoleLog PathToAssembly:{PathToAssembly}");
 
             var grpcBindingsGroup = loadRequest.Metadata.Bindings.GroupBy(kv => kv.Value.Direction);
             var grpcInputBindings = grpcBindingsGroup.Where(kv => kv.Key == BindingInfo.Types.Direction.In).FirstOrDefault();
