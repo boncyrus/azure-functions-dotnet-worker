@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using Google.Protobuf;
 using Microsoft.Azure.Functions.Worker.Grpc.Messages;
@@ -10,67 +11,67 @@ namespace Microsoft.Azure.Functions.Worker.Grpc.NativeHostIntegration
 {
     internal unsafe class NativeMethods
     {
-        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        delegate int GetApplicationPropertiesDelegate(NativeHost hostData);
+        private const string NativeWorkerDll = "FunctionsNetHost.exe";
 
-        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        delegate int RegisterCallbacksDelegate(NativeSafeHandle nativeApplicationHandle, delegate* unmanaged<byte**, int, IntPtr, IntPtr> requestCallback,
-            IntPtr workerHandler);
-
-        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        delegate int SendStreamingMessageDelegate(NativeSafeHandle nativeApplicationHandle, byte[] streamingMessage, int streamingMessageSize);
-
-        readonly GetApplicationPropertiesDelegate _getApplicationPropertiesMethod;
-        readonly RegisterCallbacksDelegate _registerCallbacksMethod;
-        readonly SendStreamingMessageDelegate _sendStreamingMessageMethod;
-
-        public NativeMethods()
+// Linux support is only in NET7 onwards.
+#if NET7_0_OR_GREATER
+        static NativeMethods()
         {
-#if NET7_0
-            IntPtr mainExecutableHandle = NativeLibrary.GetMainProgramHandle();
-
-            var getAppProperties = NativeLibrary.GetExport(mainExecutableHandle, "get_application_properties");
-            _getApplicationPropertiesMethod = Marshal.GetDelegateForFunctionPointer<GetApplicationPropertiesDelegate>(getAppProperties);
-
-            var registerCallbacksPtr = NativeLibrary.GetExport(mainExecutableHandle, "register_callbacks");
-            _registerCallbacksMethod = Marshal.GetDelegateForFunctionPointer<RegisterCallbacksDelegate>(registerCallbacksPtr);
-
-            var sendStreamingMessagePtr = NativeLibrary.GetExport(mainExecutableHandle, "send_streaming_message");
-            _sendStreamingMessageMethod = Marshal.GetDelegateForFunctionPointer<SendStreamingMessageDelegate>(sendStreamingMessagePtr);
-
-#else
-            throw new PlatformNotSupportedException("Interop communication with native layer is not supported in current platform. Consider upgrading your project to net7.0 or later.");
-#endif
+            NativeLibrary.SetDllImportResolver(typeof(NativeMethods).Assembly, ImportResolver);
         }
+#endif
 
         public NativeHost GetNativeHostData()
         {
-            var hostData = new NativeHost
-            {
-                pNativeApplication = IntPtr.Zero
-            };
-
-            var result = _getApplicationPropertiesMethod(hostData);
+            var result = get_application_properties(out var hostData);
             if (result == 1)
             {
                 return hostData;
             }
 
             throw new InvalidOperationException(
-                $"Invoking get_application_properties native method failed. Expected result:1, Actual result:{result}");
+                $"Invoking get_application_properties method failed. Expected result:1, Actual result:{result}");
         }
 
         public void RegisterCallbacks(NativeSafeHandle nativeApplication,
             delegate* unmanaged<byte**, int, IntPtr, IntPtr> requestCallback,
             IntPtr grpcHandler)
         {
-            _ = _registerCallbacksMethod(nativeApplication, requestCallback, grpcHandler);
+            _ = register_callbacks(nativeApplication, requestCallback, grpcHandler);
         }
 
         public void SendStreamingMessage(NativeSafeHandle nativeApplication, StreamingMessage streamingMessage)
         {
             byte[] bytes = streamingMessage.ToByteArray();
-            _sendStreamingMessageMethod(nativeApplication, bytes, bytes.Length);
+            _ = send_streaming_message(nativeApplication, bytes, bytes.Length);
         }
+
+        [DllImport(NativeWorkerDll, CharSet = CharSet.Auto)]
+        private static extern int get_application_properties(out NativeHost hostData);
+
+        [DllImport(NativeWorkerDll, CharSet = CharSet.Auto)]
+        private static extern int send_streaming_message(NativeSafeHandle pInProcessApplication, byte[] streamingMessage, int streamingMessageSize);
+
+        [DllImport(NativeWorkerDll, CharSet = CharSet.Auto)]
+        private static extern unsafe int register_callbacks(NativeSafeHandle pInProcessApplication,
+            delegate* unmanaged<byte**, int, IntPtr, IntPtr> requestCallback,
+            IntPtr grpcHandler);
+
+#if NET7_0_OR_GREATER
+        /// <summary>
+        /// Custom import resolve callback.
+        /// When trying to resolve "FunctionsNetHost", we return the handle using GetMainProgramHandle API in this callback.
+        /// </summary>
+        private static IntPtr ImportResolver(string libraryName, Assembly assembly, DllImportSearchPath? searchPath)
+        {
+            if (libraryName == NativeWorkerDll)
+            {
+                return NativeLibrary.GetMainProgramHandle();
+            }
+
+            // Return 0 so that built-in resolving code will be executed.
+            return IntPtr.Zero;
+        }
+#endif
     }
 }
