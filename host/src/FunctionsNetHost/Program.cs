@@ -12,19 +12,19 @@ namespace FunctionsNetHost
         {
             try
             {
-                Logger.LogInfo("Starting FunctionsNetHost202306020818");
-                Environment.SetEnvironmentVariable(EnvironmentSettingNames.FunctionsNetHostTrace, "1");
+                Logger.Log("Starting FunctionsNetHost");
 
                 var workerStartupOptions = await GetStartupOptionsFromCmdLineArgs(args);
 
-                using var appLoader = AppLoader.Instance;
+
+                using var appLoader = new AppLoader();
                 var grpcClient = new GrpcClient(workerStartupOptions, appLoader);
 
                 await grpcClient.InitAsync();
             }
             catch (Exception exception)
             {
-                Logger.LogInfo($"An error occurred while running FunctionsNetHost.{exception}");
+                Logger.Log($"An error occurred while running FunctionsNetHost.{exception}");
             }
         }
 
@@ -55,11 +55,11 @@ namespace FunctionsNetHost
                 },
                 hostOption, portOption, workerOption, grpcMsgLengthOption, requestIdOption);
 
-            Logger.LogDebug($"args:{string.Join(" ", args)}");
+            Logger.LogTrace($"raw args:{string.Join(" ", args)}");
 
             var argsWithoutExecutableName = args.Skip(1).ToArray();
             await rootCommand.InvokeAsync(argsWithoutExecutableName);
-            Logger.LogDebug($"workerStartupOptions:{workerStartupOptions}");
+            Logger.LogTrace($"workerStartupOptions:{workerStartupOptions}");
 
             return workerStartupOptions;
         }

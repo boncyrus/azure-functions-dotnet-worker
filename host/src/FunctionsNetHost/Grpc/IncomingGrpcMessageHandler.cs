@@ -26,8 +26,6 @@ namespace FunctionsNetHost.Grpc
         {
             if (_specializationDone)
             {
-                Logger.LogDebug("Specialization done. So forward all messages to customer payload");
-
                 // Specialization done. So forward all messages to customer payload.
                 await MessageChannel.Instance.SendInboundAsync(msg);
                 return;
@@ -49,37 +47,33 @@ namespace FunctionsNetHost.Grpc
                     }
                 case StreamingMessage.ContentOneofCase.FunctionEnvironmentReloadRequest:
 
-                    Logger.LogDebug("Specialization request received");
+                    Logger.LogTrace("Specialization request received.");
 
                     var envReloadRequest = msg.FunctionEnvironmentReloadRequest;
                     foreach (var kv in envReloadRequest.EnvironmentVariables)
                     {
-                        Logger.LogDebug($"{kv.Key}:{kv.Value}");
-                        Environment.SetEnvironmentVariable(kv.Key, kv.Value);
+                        EnvironmentUtils.SetValue(kv.Key, kv.Value);
                     }
-                    Logger.LogDebug($"Set {envReloadRequest.EnvironmentVariables.Count} environment variables.");
+                    Logger.LogTrace($"Set {envReloadRequest.EnvironmentVariables.Count} environment variables.");
 
                     var applicationExePath = PathUtils.GetApplicationExePath(envReloadRequest.FunctionAppDirectory);
-                    Logger.LogDebug($"applicationExePath {applicationExePath}");
+                    Logger.LogTrace($"applicationExePath {applicationExePath}");
 
 #pragma warning disable CS4014
                     Task.Run(() =>
 #pragma warning restore CS4014
                     {
-                        Logger.LogDebug($"About to call RunApplication in a new Task/Thread");
-
                         _ = _appLoader.RunApplication(applicationExePath);
                     });
 
-                    Logger.LogDebug($"Will wait for worker loaded signal");
+                    Logger.LogTrace($"Will wait for worker loaded signal.");
                     WorkerLoadStatusSignalManager.Instance.Signal.WaitOne();
-                    Logger.LogDebug($"Received worker loaded signal. Forwarding environment reload request to worker.");
+                    Logger.LogTrace($"Received worker loaded signal. Forwarding environment reload request to worker.");
 
                     await MessageChannel.Instance.SendInboundAsync(msg);
                     _specializationDone = true;
                     break;
             }
-
 
             await MessageChannel.Instance.SendOutboundAsync(responseMessage);
         }

@@ -49,7 +49,7 @@ namespace FunctionsNetHost
         private static bool ShouldUseDotNetPreviewVersions()
         {
             var value = EnvironmentUtils.GetValue(EnvironmentSettingNames.UsePreviewNetSdk);
-            Logger.LogDebug($"{EnvironmentSettingNames.UsePreviewNetSdk} environment variable value:{value}");
+            Logger.LogTrace($"{EnvironmentSettingNames.UsePreviewNetSdk} environment variable value:{value}");
             
             return !string.IsNullOrEmpty(value);
         }

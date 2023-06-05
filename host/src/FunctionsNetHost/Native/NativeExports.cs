@@ -12,7 +12,7 @@ namespace FunctionsNetHost
         [UnmanagedCallersOnly(EntryPoint = "get_application_properties")]
         public static int GetApplicationProperties(NativeHostData nativeHostData)
         {
-            Logger.LogDebug("NativeExports.GetApplicationProperties method invoked.");
+            Logger.LogTrace("NativeExports.GetApplicationProperties method invoked.");
             
             try
             {
@@ -25,7 +25,7 @@ namespace FunctionsNetHost
             }
             catch (Exception ex)
             {
-                Logger.LogInfo($"Error in NativeExports.GetApplicationProperties: {ex}");
+                Logger.Log($"Error in NativeExports.GetApplicationProperties: {ex}");
                 return 0; 
             }
         }
@@ -35,7 +35,7 @@ namespace FunctionsNetHost
                                                 delegate* unmanaged<byte**, int, IntPtr, IntPtr> requestCallback,
             IntPtr grpcHandler)
         {
-            Logger.LogDebug("NativeExports.RegisterCallbacks method invoked.");
+            Logger.LogTrace("NativeExports.RegisterCallbacks method invoked.");
             
             try
             {
@@ -44,7 +44,7 @@ namespace FunctionsNetHost
             }
             catch (Exception ex)
             {
-                Logger.LogInfo($"Error in RegisterCallbacks: {ex}");
+                Logger.Log($"Error in RegisterCallbacks: {ex}");
                 return 0;
             }
         }
@@ -52,7 +52,7 @@ namespace FunctionsNetHost
         [UnmanagedCallersOnly(EntryPoint = "send_streaming_message")]
         public static unsafe int SendStreamingMessage(IntPtr pInProcessApplication, byte* streamingMessage, int streamingMessageSize)
         {
-            Logger.LogDebug($"NativeExports.SendStreamingMessage method invoked.");
+            Logger.LogTrace($"NativeExports.SendStreamingMessage method invoked.");
 
             try
             {
@@ -65,7 +65,7 @@ namespace FunctionsNetHost
             }
             catch (Exception ex)
             {
-                Logger.LogInfo($"Error in SendStreamingMessage: {ex}");
+                Logger.Log($"Error in SendStreamingMessage: {ex}");
                 return 0;
             }
         }

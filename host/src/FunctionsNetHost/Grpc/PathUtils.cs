@@ -16,38 +16,36 @@ namespace FunctionsNetHost.Grpc
         internal static string? GetApplicationExePath(string applicationDirectory)
         {
             string jsonString = string.Empty;
+            string workerConfigPath = string.Empty;
             try
             {
-                var workerConfigPath = Path.Combine(applicationDirectory, "worker.config.json");
-
-                var fileExists = File.Exists(workerConfigPath);
-                Logger.LogInfo($"workerConfigPath:{workerConfigPath}. File exists:{fileExists}");
-
-                if (!fileExists)
-                {
-                    throw new FileNotFoundException($"worker.config.json file not found", fileName: workerConfigPath);
-                }
-
+                workerConfigPath = Path.Combine(applicationDirectory, "worker.config.json");
+                
                 jsonString = File.ReadAllText(workerConfigPath);
                 var workerConfigJsonNode = JsonNode.Parse(jsonString)!;
                 var executableName = workerConfigJsonNode["description"]?["defaultWorkerPath"]?.ToString();
 
                 if (executableName == null)
                 {
-                    Logger.LogInfo($"Invalid worker configuration. description > defaultWorkerPath property value is null. jsonString:{jsonString}");
+                    Logger.Log($"Invalid worker configuration. description > defaultWorkerPath property value is null. jsonString:{jsonString}");
                     return null;
                 }
 
                 return Path.Combine(applicationDirectory, executableName);
             }
+            catch (FileNotFoundException ex)
+            {
+                Logger.Log($"{workerConfigPath} file not found.{ex}"); 
+                return null;
+            }
             catch (JsonException ex)
             {
-                Logger.LogInfo($"Error parsing JSON in GetApplicationExePath.{ex}. jsonString:{jsonString}");
+                Logger.Log($"Error parsing JSON in GetApplicationExePath.{ex}. jsonString:{jsonString}");
                 return null;
             }
             catch (Exception ex)
             {
-                Logger.LogInfo($"Error in GetApplicationExePath.{ex}. jsonString:{jsonString}");
+                Logger.Log($"Error in GetApplicationExePath.{ex}. jsonString:{jsonString}");
                 return null;
             }
         }

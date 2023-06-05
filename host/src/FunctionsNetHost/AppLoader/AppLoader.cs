@@ -5,45 +5,47 @@ using System.Runtime.InteropServices;
 
 namespace FunctionsNetHost
 {
+    /// <summary>
+    /// Manages loading hostfxr & worker assembly.
+    /// </summary>
     internal sealed class AppLoader : IDisposable
     {
-        private static readonly AppLoader _instance = new();
         private IntPtr _hostfxrHandle = IntPtr.Zero;
         private bool _disposed;
 
-        private AppLoader()
+        internal AppLoader()
         {
             LoadHostfxrLibrary();
         }
 
-        internal static AppLoader Instance => _instance;
-
         private void LoadHostfxrLibrary()
         {
             // If having problems with the managed host, enable the following:
-            //Environment.SetEnvironmentVariable("COREHOST_TRACE", "1");
+            // Environment.SetEnvironmentVariable("COREHOST_TRACE", "1");
             // In Unix environment, you need to run the below command in the terminal to set the environment variable.
             // export COREHOST_TRACE=1
 
             var hostfxrFullPath = PathResolver.GetHostFxrPath();
-            Logger.LogDebug($"hostfxr path:{hostfxrFullPath}");
+            Logger.LogTrace($"hostfxr path:{hostfxrFullPath}");
 
             _hostfxrHandle = NativeLibrary.Load(hostfxrFullPath);
             if (_hostfxrHandle == IntPtr.Zero)
             {
-                Logger.LogInfo($"Failed to load hostfxr. hostfxr path:{hostfxrFullPath}");
+                Logger.Log($"Failed to load hostfxr. hostfxr path:{hostfxrFullPath}");
                 return;
             }
 
-            Logger.LogDebug($"hostfxr library loaded successfully.");
+            Logger.LogTrace($"hostfxr library loaded successfully.");
         }
 
         internal int RunApplication(string? assemblyPath)
         {
-            Logger.LogDebug($"Assembly path to run:{assemblyPath}");
             ArgumentNullException.ThrowIfNull(assemblyPath, nameof(assemblyPath));
 
-            Logger.LogDebug($"File ({assemblyPath}) exists:{File.Exists(assemblyPath)}");
+            if (Logger.IsTraceLogEnabled)
+            {
+                Logger.Log($"Assembly path to run:{assemblyPath}. File exists:{File.Exists(assemblyPath)}");
+            }
 
             unsafe
             {
@@ -56,8 +58,8 @@ namespace FunctionsNetHost
 
                 if (hostContextHandle == IntPtr.Zero)
                 {
-                    Logger.LogInfo(
-                        $"Failed to initialize the .NET Core runtime. assembly path:{assemblyPath}");
+                    Logger.Log(
+                        $"Failed to initialize the .NET Core runtime. Assembly path:{assemblyPath}");
                     return -1;
                 }
 
@@ -90,7 +92,7 @@ namespace FunctionsNetHost
                 if (_hostfxrHandle != IntPtr.Zero)
                 {
                     NativeLibrary.Free(_hostfxrHandle);
-                    Logger.LogInfo($"Freed hostfxr library handle");
+                    Logger.LogTrace($"Freed hostfxr library handle");
                     _hostfxrHandle = IntPtr.Zero;
                 }
 
