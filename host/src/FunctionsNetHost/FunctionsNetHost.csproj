@@ -31,12 +31,13 @@
     </PackageReference>
     <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
     <PackageReference Include="System.Text.Json" Version="7.0.2" />
+    <PackageReference Include="Microsoft.NETCore.DotNetAppHost" Version="7.0.5" />
   </ItemGroup>
 
   <ItemGroup>
-    <Protobuf Include="..\..\..\protos\azure-functions-language-worker-protobuf\**\*.proto" 
-              ProtoRoot="..\..\..\protos\azure-functions-language-worker-protobuf\src\proto" 
-              GrpcServices="Client" 
+    <Protobuf Include="..\..\..\protos\azure-functions-language-worker-protobuf\**\*.proto"
+              ProtoRoot="..\..\..\protos\azure-functions-language-worker-protobuf\src\proto"
+              GrpcServices="Client"
               Access="internal" />
   </ItemGroup>
 
