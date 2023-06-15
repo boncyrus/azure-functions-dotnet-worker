@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
+using System.Collections;
 using System.CommandLine;
 using FunctionsNetHost.Grpc;
 
@@ -12,12 +13,12 @@ namespace FunctionsNetHost
         {
             try
             {
-                Logger.Log("Starting FunctionsNetHost 06151430");
+                Logger.Log("Starting FunctionsNetHost 06151505");
 
                 var allEnvVars = Environment.GetEnvironmentVariables();
                 Logger.Log($"EnvironmentVar count {allEnvVars.Count}");
 
-                foreach (KeyValuePair<string, string> envEntry in allEnvVars)
+                foreach (DictionaryEntry envEntry in allEnvVars)
                 {
                     Logger.Log($"EnvironmentVar {envEntry.Key}:{envEntry.Value}");
                 }
