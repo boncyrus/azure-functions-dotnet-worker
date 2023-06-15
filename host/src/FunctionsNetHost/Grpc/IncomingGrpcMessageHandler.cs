@@ -50,8 +50,11 @@ namespace FunctionsNetHost.Grpc
                     Logger.LogTrace("Specialization request received.");
 
                     var envReloadRequest = msg.FunctionEnvironmentReloadRequest;
+                    Logger.LogTrace($"envReloadRequest.EnvironmentVariables.Count. {envReloadRequest.EnvironmentVariables.Count}");
+
                     foreach (var kv in envReloadRequest.EnvironmentVariables)
                     {
+                        Logger.LogTrace($"Setting Env var request {kv.Key}: {kv.Value}");
                         EnvironmentUtils.SetValue(kv.Key, kv.Value);
                     }
 

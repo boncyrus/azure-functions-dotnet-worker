@@ -12,7 +12,15 @@ namespace FunctionsNetHost
         {
             try
             {
-                Logger.Log("Starting FunctionsNetHost");
+                Logger.Log("Starting FunctionsNetHost 06151430");
+
+                var allEnvVars = Environment.GetEnvironmentVariables();
+                Logger.Log($"EnvironmentVar count {allEnvVars.Count}");
+
+                foreach (KeyValuePair<string, string> envEntry in allEnvVars)
+                {
+                    Logger.Log($"EnvironmentVar {envEntry.Key}:{envEntry.Value}");
+                }
 
                 var workerStartupOptions = await GetStartupOptionsFromCmdLineArgs(args);
 
