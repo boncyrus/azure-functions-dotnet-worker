@@ -58,8 +58,11 @@ namespace Microsoft.Azure.Functions.Worker.Grpc.NativeHostIntegration
         /// </summary>
         private static IntPtr ImportResolver(string libraryName, System.Reflection.Assembly assembly, DllImportSearchPath? searchPath)
         {
-            if (libraryName == NativeWorkerDll)
+            if (string.Equals(libraryName, NativeWorkerDll, StringComparison.OrdinalIgnoreCase))
             {
+                // NativeLibrary.GetMainProgramHandle method works cross platform, but is available only from NET7.
+                // For net6 linux case, we added the NativeLibraryLinux shim which calls the native API to get the main program handle.
+                // For net6 windows, the built-in resolve code using DllImport will work.
 #if NET6_0
                 if (OperatingSystem.IsLinux())
                 {
@@ -68,7 +71,7 @@ namespace Microsoft.Azure.Functions.Worker.Grpc.NativeHostIntegration
 #elif NET7_0_OR_GREATER
                 return NativeLibrary.GetMainProgramHandle();
 #else
-                throw new PlatformNotSupportedException("Interop communication with FunctionsNetHost is not supported in the current platform. Consider upgrading your project to .NET 7.0 or later.");
+                throw new PlatformNotSupportedException("Interop communication with FunctionsNetHost is not supported in the current platform. Consider upgrading your project to .NET 6.0 or later.");
 #endif
             }
 

@@ -66,7 +66,7 @@ namespace FunctionsNetHost.Grpc
                     });
 
                     Logger.LogTrace($"Will wait for worker loaded signal.");
-                    WorkerLoadStatusSignalManager.Instance.Signal.WaitOne();
+                    WorkerLoadStatusSignalManager.Instance.WaitHandle.WaitOne();
                     Logger.LogTrace($"Received worker loaded signal. Forwarding environment reload request to worker.");
 
                     await MessageChannel.Instance.SendInboundAsync(msg);

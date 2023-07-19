@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 namespace FunctionsNetHost
 {
     /// <summary>
-    /// Manages loading hostfxr & worker assembly.
+    /// Manages loading .NET runtime and worker assembly.
     /// </summary>
     internal sealed class AppLoader : IDisposable
     {

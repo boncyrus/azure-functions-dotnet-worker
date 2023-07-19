@@ -26,7 +26,7 @@ namespace FunctionsNetHost
             _requestHandlerCallback = callback;
             _workerHandle = grpcHandle;
 
-            WorkerLoadStatusSignalManager.Instance.Signal.Set();
+            WorkerLoadStatusSignalManager.Instance.WaitHandle.Set();
         }
     }
 }

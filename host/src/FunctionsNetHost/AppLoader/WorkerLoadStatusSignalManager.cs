@@ -10,10 +10,13 @@ public class WorkerLoadStatusSignalManager
 {
     private WorkerLoadStatusSignalManager()
     {
-        Signal = new ManualResetEvent(false);
+        WaitHandle = new ManualResetEvent(false);
     }
 
     public static WorkerLoadStatusSignalManager Instance { get; } = new();
 
-    public readonly ManualResetEvent Signal;
+    /// <summary>
+    /// A wait handle which will be signaled when worker assembly load is successful.
+    /// </summary>
+    public readonly ManualResetEvent WaitHandle;
 }
