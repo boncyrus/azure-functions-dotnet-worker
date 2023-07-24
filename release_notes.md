@@ -16,6 +16,7 @@
 ### Microsoft.Azure.Functions.Worker.Grpc <version>
 
 - Add handling for retry options in worker-indexing grpc communication path (#1548)
+- Add placeholder support for linux platform. (#1704)
 
 ### Microsoft.Azure.Functions.Worker.Sdk
 
